@@ -89,7 +89,10 @@ let data = {
 };
 
 document.getElementById("result").innerHTML =
-team + " 夺冠概率：" + data[team];
+`
+<h2>${team}</h2>
+<p>夺冠概率：${data[team]}</p>
+`;
 
 }
 
