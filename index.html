@@ -1,101 +1,190 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>世界杯预测系统</title>
+<title>世界杯预测系统 V3</title>
 
 <style>
 body{
-font-family:-apple-system;
-background:#0f172a;
-color:white;
-padding:20px;
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:#0f172a;
+  color:white;
+  padding:20px;
+}
+
+h1{
+  font-size:34px;
+  margin-top:30px;
 }
 
 .card{
-background:#1e293b;
-padding:15px;
-border-radius:12px;
-margin-bottom:15px;
+  background:#1e293b;
+  padding:18px;
+  border-radius:18px;
+  margin-bottom:18px;
 }
 
-select{
-width:100%;
-padding:10px;
-margin-top:10px;
-margin-bottom:10px;
-border-radius:8px;
+select,button{
+  width:100%;
+  padding:14px;
+  margin-top:12px;
+  border-radius:12px;
+  font-size:16px;
 }
 
 button{
-width:100%;
-padding:12px;
-background:#2563eb;
-color:white;
-border:none;
-border-radius:10px;
-font-size:16px;
+  background:#2563eb;
+  color:white;
+  border:none;
+  font-weight:bold;
 }
 
 .result{
-margin-top:15px;
-font-size:20px;
-font-weight:bold;
-color:#38bdf8;
+  margin-top:18px;
+  color:#38bdf8;
+  font-size:22px;
+  font-weight:bold;
+}
+
+.rank-row{
+  margin:12px 0;
+}
+
+.bar-bg{
+  background:#334155;
+  height:12px;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+.bar{
+  height:12px;
+  background:#38bdf8;
+  border-radius:10px;
+}
+
+.small{
+  color:#cbd5e1;
+  font-size:14px;
+}
+
+.footer{
+  color:#94a3b8;
+  font-size:13px;
+  margin-top:30px;
 }
 </style>
 </head>
 
 <body>
 
-<h1>⚽ 世界杯冠军预测</h1>
+<h1>⚽ 世界杯预测系统 V3</h1>
 
 <div class="card">
+  <h2>选择球队</h2>
 
-<h2>选择支持球队</h2>
+  <select id="team">
+    <option value="阿根廷">🇦🇷 阿根廷</option>
+    <option value="法国">🇫🇷 法国</option>
+    <option value="巴西">🇧🇷 巴西</option>
+    <option value="德国">🇩🇪 德国</option>
+    <option value="英格兰">🏴 英格兰</option>
+    <option value="西班牙">🇪🇸 西班牙</option>
+    <option value="葡萄牙">🇵🇹 葡萄牙</option>
+    <option value="荷兰">🇳🇱 荷兰</option>
+    <option value="比利时">🇧🇪 比利时</option>
+    <option value="乌拉圭">🇺🇾 乌拉圭</option>
+  </select>
 
-<select id="team">
-<option>阿根廷</option>
-<option>法国</option>
-<option>巴西</option>
-<option>德国</option>
-<option>英格兰</option>
-<option>西班牙</option>
-</select>
+  <button onclick="predict()">开始预测</button>
 
-<button onclick="predict()">
-开始预测
-</button>
+  <div id="result" class="result"></div>
+</div>
 
-<div class="result" id="result"></div>
+<div class="card">
+  <h2>夺冠概率排行榜</h2>
+  <div id="ranking"></div>
+</div>
 
+<div class="card">
+  <h2>模型说明</h2>
+  <p class="small">
+    当前版本为手机网页原型，使用 Elo、FIFA排名、球队状态和模拟概率的综合示例数据。
+    后续可以继续接入每日赛果、xG数据、小组积分和淘汰赛模拟。
+  </p>
+</div>
+
+<div class="footer">
+  预测仅供分析，不构成投注建议。
 </div>
 
 <script>
-
-function predict(){
-
-let team =
-document.getElementById("team").value;
-
 let data = {
-"阿根廷":"27%",
-"法国":"14%",
-"巴西":"16%",
-"德国":"13%",
-"英格兰":"12%",
-"西班牙":"11%"
+  "阿根廷":27,
+  "巴西":16,
+  "法国":14,
+  "德国":13,
+  "英格兰":12,
+  "西班牙":11,
+  "葡萄牙":10,
+  "荷兰":9,
+  "比利时":8,
+  "乌拉圭":7
 };
 
-document.getElementById("result").innerHTML =
-`
-<h2>${team}</h2>
-<p>夺冠概率：${data[team]}</p>
-`;
+let flags = {
+  "阿根廷":"🇦🇷",
+  "巴西":"🇧🇷",
+  "法国":"🇫🇷",
+  "德国":"🇩🇪",
+  "英格兰":"🏴",
+  "西班牙":"🇪🇸",
+  "葡萄牙":"🇵🇹",
+  "荷兰":"🇳🇱",
+  "比利时":"🇧🇪",
+  "乌拉圭":"🇺🇾"
+};
 
+function predict(){
+  let team = document.getElementById("team").value;
+  let probability = data[team];
+
+  document.getElementById("result").innerHTML =
+  `
+  <div>${flags[team]} ${team}</div>
+  <div>夺冠概率：${probability}%</div>
+  `;
 }
 
+function renderRanking(){
+  let ranking = Object.entries(data)
+    .sort((a,b)=>b[1]-a[1]);
+
+  let html = "";
+
+  ranking.forEach((item,index)=>{
+    let team = item[0];
+    let probability = item[1];
+
+    html += `
+    <div class="rank-row">
+      <div>
+        ${index+1}. ${flags[team]} ${team}
+        <span class="small">${probability}%</span>
+      </div>
+      <div class="bar-bg">
+        <div class="bar" style="width:${probability}%"></div>
+      </div>
+    </div>
+    `;
+  });
+
+  document.getElementById("ranking").innerHTML = html;
+}
+
+renderRanking();
 </script>
 
 </body>
