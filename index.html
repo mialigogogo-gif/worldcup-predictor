@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>世界杯预测中心 V14</title>
+<title>世界杯预测中心 V15</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0f172a;color:white;padding:20px}
@@ -15,21 +15,42 @@ button{background:#2563eb;color:white;border:none;font-weight:bold}
 .bar-bg{background:#334155;height:12px;border-radius:10px;overflow:hidden;margin-top:5px}
 .bar{height:12px;background:#38bdf8}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .stat{background:#0f172a;padding:12px;border-radius:12px;border:1px solid #334155}
-.score{font-size:28px;color:#38bdf8;font-weight:bold}.footer{color:#94a3b8;font-size:13px}
+.score{font-size:32px;color:#38bdf8;font-weight:bold}.ai{line-height:1.7;color:#e0f2fe}
+.footer{color:#94a3b8;font-size:13px}
 </style>
 </head>
 <body>
 
-<h1>⚽ 世界杯预测中心 V14</h1>
+<h1>⚽ 世界杯预测中心 V15</h1>
 
-<div class="card"><h2>冠军预测｜48队</h2><select id="team"></select><button onclick="predict()">开始预测</button><div id="result"></div></div>
-<div class="card"><h2>今日比赛预测</h2><select id="matchDate" onchange="renderMatches()"></select><div id="matches"></div></div>
-<div class="card"><h2>🎲 单次世界杯模拟</h2><button onclick="simulateOneCup()">模拟一次世界杯</button><div id="oneSim"></div></div>
-<div class="card"><h2>📊 1000次模拟统计</h2><button onclick="simulateManyCups()">运行1000次模拟</button><div id="manySim"></div></div>
+<div class="card">
+<h2>冠军预测｜48队</h2>
+<select id="team"></select>
+<button onclick="predict()">开始预测</button>
+<div id="result"></div>
+</div>
+
+<div class="card">
+<h2>比赛预测｜今日 / 明日 / 后日</h2>
+<select id="matchDate" onchange="renderMatches()"></select>
+<div id="matches"></div>
+</div>
+
+<div class="card">
+<h2>🎲 单次世界杯模拟</h2>
+<button onclick="simulateOneCup()">模拟一次世界杯</button>
+<div id="oneSim"></div>
+</div>
+
+<div class="card">
+<h2>📊 1000次模拟统计</h2>
+<button onclick="simulateManyCups()">运行1000次模拟</button>
+<div id="manySim"></div>
+</div>
+
 <div class="card"><h2>冠军概率图表</h2><canvas id="chart"></canvas></div>
 <div class="card"><h2>小组积分榜</h2><div id="groups"></div></div>
 <div class="card"><h2>夺冠概率排行榜</h2><div id="ranking"></div></div>
-<div class="card"><h2>AI总冠军报告</h2><button onclick="report()">生成AI报告</button><div id="report"></div></div>
 <div class="footer" id="update"></div>
 
 <script>
@@ -53,11 +74,18 @@ let groups={
 let flag={"墨西哥":"🇲🇽","南非":"🇿🇦","韩国":"🇰🇷","捷克":"🇨🇿","加拿大":"🇨🇦","波黑":"🇧🇦","卡塔尔":"🇶🇦","瑞士":"🇨🇭","巴西":"🇧🇷","摩洛哥":"🇲🇦","海地":"🇭🇹","苏格兰":"🏴","美国":"🇺🇸","巴拉圭":"🇵🇾","澳大利亚":"🇦🇺","土耳其":"🇹🇷","德国":"🇩🇪","库拉索":"🇨🇼","科特迪瓦":"🇨🇮","厄瓜多尔":"🇪🇨","荷兰":"🇳🇱","日本":"🇯🇵","瑞典":"🇸🇪","突尼斯":"🇹🇳","比利时":"🇧🇪","埃及":"🇪🇬","伊朗":"🇮🇷","新西兰":"🇳🇿","西班牙":"🇪🇸","佛得角":"🇨🇻","沙特":"🇸🇦","乌拉圭":"🇺🇾","法国":"🇫🇷","塞内加尔":"🇸🇳","伊拉克":"🇮🇶","挪威":"🇳🇴","阿根廷":"🇦🇷","阿尔及利亚":"🇩🇿","奥地利":"🇦🇹","约旦":"🇯🇴","葡萄牙":"🇵🇹","刚果（金）":"🇨🇩","乌兹别克斯坦":"🇺🇿","哥伦比亚":"🇨🇴","英格兰":"🏴","克罗地亚":"🇭🇷","加纳":"🇬🇭","巴拿马":"🇵🇦"};
 
 let power={
-"阿根廷":[27,92,88,90],"巴西":[16,91,82,84],"法国":[14,90,86,83],"德国":[13,87,82,86],"英格兰":[12,88,85,84],"西班牙":[11,84,83,92],"葡萄牙":[10,86,81,82],"荷兰":[9,82,87,80],"比利时":[8,84,76,80],"乌拉圭":[7,81,84,76],
-"日本":[5,78,75,80],"哥伦比亚":[5,79,75,76],"美国":[4,76,74,73],"加拿大":[4,76,72,70],"瑞士":[4,74,76,72],"奥地利":[4,76,77,74],"塞内加尔":[4,75,79,70],"克罗地亚":[4,74,76,80],"摩洛哥":[4,74,78,71],
-"土耳其":[3,74,70,72],"韩国":[3,72,70,73],"瑞典":[3,71,72,68],"厄瓜多尔":[3,76,78,72],
-"埃及":[2,73,70,68],"伊朗":[2,70,72,66],"加纳":[2,68,66,64],"巴拉圭":[2,68,73,64],"澳大利亚":[2,68,71,65],"阿尔及利亚":[2,72,70,68],
-"墨西哥":[4,75,73,72],"挪威":[4,80,72,69],"捷克":[2,68,70,66],"沙特":[1,68,66,64],"突尼斯":[1,65,70,62],"新西兰":[1,61,63,58],"佛得角":[1,64,65,60],"伊拉克":[1,62,64,60],"约旦":[1,60,62,58],"乌兹别克斯坦":[1,64,66,62],"刚果（金）":[1,62,64,60],"巴拿马":[1,60,61,58],"南非":[1,63,64,62],"波黑":[1,65,62,64],"卡塔尔":[1,60,58,60],"海地":[1,58,58,55],"苏格兰":[2,66,70,67],"库拉索":[1,58,60,55],"科特迪瓦":[2,70,70,66]
+"阿根廷":[27,92,88,90],"巴西":[16,91,82,84],"法国":[14,90,86,83],"德国":[13,87,82,86],
+"英格兰":[12,88,85,84],"西班牙":[11,84,83,92],"葡萄牙":[10,86,81,82],"荷兰":[9,82,87,80],
+"比利时":[8,84,76,80],"乌拉圭":[7,81,84,76],"日本":[5,78,75,80],"哥伦比亚":[5,79,75,76],
+"美国":[4,76,74,73],"加拿大":[4,76,72,70],"瑞士":[4,74,76,72],"奥地利":[4,76,77,74],
+"塞内加尔":[4,75,79,70],"克罗地亚":[4,74,76,80],"摩洛哥":[4,74,78,71],"墨西哥":[4,75,73,72],
+"挪威":[4,80,72,69],"土耳其":[3,74,70,72],"韩国":[3,72,70,73],"瑞典":[3,71,72,68],
+"厄瓜多尔":[3,76,78,72],"埃及":[2,73,70,68],"伊朗":[2,70,72,66],"加纳":[2,68,66,64],
+"巴拉圭":[2,68,73,64],"澳大利亚":[2,68,71,65],"阿尔及利亚":[2,72,70,68],"捷克":[2,68,70,66],
+"苏格兰":[2,66,70,67],"科特迪瓦":[2,70,70,66],"沙特":[1,68,66,64],"突尼斯":[1,65,70,62],
+"新西兰":[1,61,63,58],"佛得角":[1,64,65,60],"伊拉克":[1,62,64,60],"约旦":[1,60,62,58],
+"乌兹别克斯坦":[1,64,66,62],"刚果（金）":[1,62,64,60],"巴拿马":[1,60,61,58],"南非":[1,63,64,62],
+"波黑":[1,65,62,64],"卡塔尔":[1,60,58,60],"海地":[1,58,58,55],"库拉索":[1,58,60,55]
 };
 
 let players={"阿根廷":"梅西 · 劳塔罗 · 恩佐","巴西":"维尼修斯 · 罗德里戈","法国":"姆巴佩 · 登贝莱","英格兰":"贝林厄姆 · 凯恩","日本":"久保建英 · 三笘薰","葡萄牙":"C罗 · B费","荷兰":"范戴克 · 德容"};
@@ -83,15 +111,41 @@ function groupOf(n){for(let g in groups){if(groups[g].includes(n))return g}retur
 function d(n){let x=power[n]||[1,62,62,62];return{prob:x[0],atk:x[1],def:x[2],ctl:x[3]}}
 function strength(n){let x=d(n);return x.atk*.45+x.def*.35+x.ctl*.2}
 function winProb(a,b){let diff=strength(a)-strength(b);return Math.max(10,Math.min(85,50+diff*1.3))}
-function pickWinner(a,b){let p=winProb(a,b);return Math.random()*100<p?a:b}
+function pickWinner(a,b){return Math.random()*100<winProb(a,b)?a:b}
 
 function predictMatch(a,b){
-let p=winProb(a,b), aw=Math.round(p), bw=Math.round(100-p-24), dr=100-aw-bw;
+let A=d(a),B=d(b),diff=strength(a)-strength(b);
+let aw=Math.round(winProb(a,b));
+let bw=Math.round(100-aw-24);
+let dr=100-aw-bw;
 if(bw<8){bw=8;dr=100-aw-bw}
-let ag=Math.max(0,Math.round((strength(a)-58)/18));
-let bg=Math.max(0,Math.round((strength(b)-58)/20));
-if(aw>60&&ag<=bg)ag=bg+1;if(bw>55&&bg<=ag)bg=ag+1;
-return{aw,bw,dr,score:ag+"-"+bg}
+
+let possessionA=Math.round(50+(A.ctl-B.ctl)*0.8);
+possessionA=Math.max(38,Math.min(68,possessionA));
+let possessionB=100-possessionA;
+
+let xgA=Math.max(0.3,((A.atk*0.04)+(A.ctl*0.01)-(B.def*0.025))).toFixed(2);
+let xgB=Math.max(0.3,((B.atk*0.04)+(B.ctl*0.01)-(A.def*0.025))).toFixed(2);
+
+let shotsA=Math.round(Number(xgA)*5+4);
+let shotsB=Math.round(Number(xgB)*5+4);
+let onA=Math.max(1,Math.round(shotsA*0.38));
+let onB=Math.max(1,Math.round(shotsB*0.38));
+let cornersA=Math.max(1,Math.round(possessionA/13+Number(xgA)));
+let cornersB=Math.max(1,Math.round(possessionB/13+Number(xgB)));
+
+let goalsA=Math.max(0,Math.round(Number(xgA)));
+let goalsB=Math.max(0,Math.round(Number(xgB)));
+if(aw>60&&goalsA<=goalsB)goalsA=goalsB+1;
+if(bw>55&&goalsB<=goalsA)goalsB=goalsA+1;
+
+let reason="";
+if(A.ctl>B.ctl) reason+=`${a}控球能力更强，预计会掌握更多球权。`;
+else reason+=`${b}控球能力更强，${a}可能更多依靠反击。`;
+if(A.atk>B.def) reason+=`${a}进攻指数高于${b}防守指数，创造机会能力更占优。`;
+else reason+=`${b}防守端更稳，可能压低${a}的射门质量。`;
+
+return{aw,bw,dr,score:goalsA+"-"+goalsB,pa:possessionA,pb:possessionB,xga:xgA,xgb:xgB,sa:shotsA,sb:shotsB,oa:onA,ob:onB,ca:cornersA,cb:cornersB,reason}
 }
 
 function init(){
@@ -120,7 +174,34 @@ function renderMatches(){
 let date=document.getElementById("matchDate").value,html="";
 schedule.filter(x=>x[0]==date).forEach(m=>{
 let p=predictMatch(m[3],m[4]);
-html+=`<div class="result"><h3>${m[0]} ${m[1]}｜${m[2]}</h3><div class="big">${flag[m[3]]} ${m[3]} vs ${flag[m[4]]} ${m[4]}</div><p>预测比分：</p><div class="score">${p.score}</div><p>${m[3]}胜：${p.aw}%</p><div class="bar-bg"><div class="bar" style="width:${p.aw}%"></div></div><p>平局：${p.dr}%</p><div class="bar-bg"><div class="bar" style="width:${p.dr}%"></div></div><p>${m[4]}胜：${p.bw}%</p><div class="bar-bg"><div class="bar" style="width:${p.bw}%"></div></div></div>`;
+html+=`
+<div class="result">
+<h3>${m[0]} ${m[1]}｜${m[2]}</h3>
+<div class="big">${flag[m[3]]} ${m[3]} vs ${flag[m[4]]} ${m[4]}</div>
+
+<p>预测比分：</p><div class="score">${p.score}</div>
+
+<p>${m[3]}胜：${p.aw}%</p><div class="bar-bg"><div class="bar" style="width:${p.aw}%"></div></div>
+<p>平局：${p.dr}%</p><div class="bar-bg"><div class="bar" style="width:${p.dr}%"></div></div>
+<p>${m[4]}胜：${p.bw}%</p><div class="bar-bg"><div class="bar" style="width:${p.bw}%"></div></div>
+
+<h3>比赛数据预测</h3>
+<div class="grid">
+<div class="stat">${m[3]}控球率：${p.pa}%</div>
+<div class="stat">${m[4]}控球率：${p.pb}%</div>
+<div class="stat">${m[3]} xG：${p.xga}</div>
+<div class="stat">${m[4]} xG：${p.xgb}</div>
+<div class="stat">${m[3]}射门：${p.sa}</div>
+<div class="stat">${m[4]}射门：${p.sb}</div>
+<div class="stat">${m[3]}射正：${p.oa}</div>
+<div class="stat">${m[4]}射正：${p.ob}</div>
+<div class="stat">${m[3]}角球：${p.ca}</div>
+<div class="stat">${m[4]}角球：${p.cb}</div>
+</div>
+
+<h3>AI预测理由</h3>
+<p class="ai">${p.reason}</p>
+</div>`;
 });
 document.getElementById("matches").innerHTML=html;
 }
@@ -133,9 +214,7 @@ winners.push(arr[0],arr[1]);
 });
 while(winners.length>1){
 let next=[];
-for(let i=0;i<winners.length;i+=2){
-next.push(pickWinner(winners[i],winners[i+1]));
-}
+for(let i=0;i<winners.length;i+=2){next.push(pickWinner(winners[i],winners[i+1]))}
 winners=next;
 }
 return winners[0];
@@ -156,26 +235,11 @@ let sorted=Object.entries(count).sort((a,b)=>b[1]-a[1]).slice(0,10);
 document.getElementById("manySim").innerHTML=`<div class="result"><h3>1000次模拟冠军统计</h3>${sorted.map((x,i)=>`<p>${i+1}. ${flag[x[0]]} ${x[0]}：${x[1]}次｜${(x[1]/10).toFixed(1)}%</p><div class="bar-bg"><div class="bar" style="width:${x[1]/10}%"></div></div>`).join("")}</div>`;
 }
 
-function renderGroups(){
-document.getElementById("groups").innerHTML=Object.keys(groups).map(g=>`<div class="result"><h3>${g}组</h3>${groups[g].map((n,i)=>`<p>${i+1}. ${flag[n]} ${n}｜模型强度 ${Math.round(strength(n))}</p>`).join("")}</div>`).join("");
-}
-
-function renderRanking(){
-let top=allTeams().sort((a,b)=>d(b).prob-d(a).prob).slice(0,20);
-document.getElementById("ranking").innerHTML=top.map((n,i)=>`<p>${i+1}. ${flag[n]} ${n}｜${d(n).prob}%</p><div class="bar-bg"><div class="bar" style="width:${d(n).prob}%"></div></div>`).join("");
-}
-
-function renderChart(){
-let top=allTeams().sort((a,b)=>d(b).prob-d(a).prob).slice(0,10);
-new Chart(document.getElementById("chart"),{type:"doughnut",data:{labels:top,datasets:[{data:top.map(x=>d(x).prob)}]},options:{plugins:{legend:{labels:{color:"white"}}}}});
-}
-
-function report(){
-let best=allTeams().sort((a,b)=>d(b).prob-d(a).prob)[0];
-document.getElementById("report").innerHTML=`<div class="result"><h3>AI总冠军报告</h3><p>当前模型最看好 ${flag[best]} ${best}，冠军概率 ${d(best).prob}%。</p></div>`;
-}
-
-function renderUpdate(){document.getElementById("update").innerHTML="最后更新："+new Date().toLocaleString()+"｜模拟结果为概率模型，不是确定结果。"}
+function renderGroups(){document.getElementById("groups").innerHTML=Object.keys(groups).map(g=>`<div class="result"><h3>${g}组</h3>${groups[g].map((n,i)=>`<p>${i+1}. ${flag[n]} ${n}｜模型强度 ${Math.round(strength(n))}</p>`).join("")}</div>`).join("")}
+function renderRanking(){let top=allTeams().sort((a,b)=>d(b).prob-d(a).prob).slice(0,20);document.getElementById("ranking").innerHTML=top.map((n,i)=>`<p>${i+1}. ${flag[n]} ${n}｜${d(n).prob}%</p><div class="bar-bg"><div class="bar" style="width:${d(n).prob}%"></div></div>`).join("")}
+function renderChart(){let top=allTeams().sort((a,b)=>d(b).prob-d(a).prob).slice(0,10);new Chart(document.getElementById("chart"),{type:"doughnut",data:{labels:top,datasets:[{data:top.map(x=>d(x).prob)}]},options:{plugins:{legend:{labels:{color:"white"}}}}})}
+function report(){let best=allTeams().sort((a,b)=>d(b).prob-d(a).prob)[0];document.getElementById("report").innerHTML=`<div class="result"><h3>AI总冠军报告</h3><p>当前模型最看好 ${flag[best]} ${best}，冠军概率 ${d(best).prob}%。</p></div>`}
+function renderUpdate(){document.getElementById("update").innerHTML="最后更新："+new Date().toLocaleString()+"｜预测仅供分析，不构成投注建议。"}
 
 init();
 </script>
