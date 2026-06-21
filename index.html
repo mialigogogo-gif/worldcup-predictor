@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>世界杯预测中心 V5</title>
+<title>世界杯预测中心 V6</title>
 
 <style>
 body{
@@ -95,6 +95,19 @@ button{
   font-weight:bold;
 }
 
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.stat{
+  background:#0f172a;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid #334155;
+}
+
 .footer{
   color:#94a3b8;
   font-size:13px;
@@ -105,7 +118,7 @@ button{
 
 <body>
 
-<h1>⚽ 世界杯预测中心 V5</h1>
+<h1>⚽ 世界杯预测中心 V6</h1>
 
 <div class="card">
   <h2>冠军预测</h2>
@@ -124,13 +137,22 @@ button{
   </select>
 
   <button onclick="predict()">开始预测</button>
-
   <div id="result"></div>
 </div>
 
 <div class="card">
   <h2>今日比赛预测</h2>
   <div id="matches"></div>
+</div>
+
+<div class="card">
+  <h2>预计四强</h2>
+  <div class="grid" id="semis"></div>
+</div>
+
+<div class="card">
+  <h2>金球奖预测</h2>
+  <div id="mvp"></div>
 </div>
 
 <div class="card">
@@ -141,140 +163,92 @@ button{
 <div class="card">
   <h2>模型说明</h2>
   <p class="small">
-    V5 版本加入每日比赛预测、胜平负概率和预测比分。当前数据为示例模型数据，后续可以继续接入实时赛果、xG、Elo、FIFA排名和自动更新。
+    V6 版本加入球队攻防指数、四强预测、金球奖预测、今日比赛胜平负和比分预测。
+    当前为前端静态模型，后续可以继续接入真实 Elo、FIFA、xG、每日赛果和自动更新 API。
   </p>
 </div>
 
-<div class="footer">
-  预测仅供分析，不构成投注建议。
-</div>
+<div class="footer" id="update"></div>
 
 <script>
-let matches = [
-  {
-    date:"今日",
-    game:"西班牙 vs 沙特",
-    home:"西班牙",
-    away:"沙特",
-    homeWin:57,
-    draw:26,
-    awayWin:17,
-    score:"2-0"
-  },
-  {
-    date:"今日",
-    game:"比利时 vs 伊朗",
-    home:"比利时",
-    away:"伊朗",
-    homeWin:53,
-    draw:24,
-    awayWin:23,
-    score:"2-1"
-  },
-  {
-    date:"今日",
-    game:"乌拉圭 vs 佛得角",
-    home:"乌拉圭",
-    away:"佛得角",
-    homeWin:62,
-    draw:22,
-    awayWin:16,
-    score:"2-0"
-  },
-  {
-    date:"明日",
-    game:"阿根廷 vs 奥地利",
-    home:"阿根廷",
-    away:"奥地利",
-    homeWin:65,
-    draw:17,
-    awayWin:18,
-    score:"2-1"
-  },
-  {
-    date:"明日",
-    game:"法国 vs 伊拉克",
-    home:"法国",
-    away:"伊拉克",
-    homeWin:94,
-    draw:4,
-    awayWin:2,
-    score:"4-0"
-  }
-];
-
 let teams = {
   "阿根廷":{
-    flag:"🇦🇷",
-    prob:27,
-    rank:1,
+    flag:"🇦🇷", prob:27, rank:1,
+    attack:92, defense:88, control:90,
     players:["梅西","劳塔罗","恩佐","麦卡利斯特"],
-    analysis:"阿根廷整体稳定性强，大赛经验丰富，中前场创造力突出。若核心球员保持健康，仍是冠军热门。"
+    analysis:"阿根廷整体稳定性强，大赛经验丰富，中前场创造力突出。若核心球员保持健康，仍是冠军最大热门。"
   },
   "巴西":{
-    flag:"🇧🇷",
-    prob:16,
-    rank:2,
+    flag:"🇧🇷", prob:16, rank:2,
+    attack:91, defense:82, control:84,
     players:["维尼修斯","罗德里戈","马丁内利","卡塞米罗"],
     analysis:"巴西个人能力极强，边路爆点多，进攻上限很高。但中后场稳定性会影响淘汰赛表现。"
   },
   "法国":{
-    flag:"🇫🇷",
-    prob:14,
-    rank:3,
+    flag:"🇫🇷", prob:14, rank:3,
+    attack:90, defense:86, control:83,
     players:["姆巴佩","登贝莱","格列兹曼","楚阿梅尼"],
     analysis:"法国阵容厚度顶级，速度和冲击力极强。若中场控制稳定，具备再次冲击冠军的能力。"
   },
   "德国":{
-    flag:"🇩🇪",
-    prob:13,
-    rank:4,
+    flag:"🇩🇪", prob:13, rank:4,
+    attack:87, defense:82, control:86,
     players:["穆西亚拉","维尔茨","哈弗茨","基米希"],
     analysis:"德国技术型球员储备丰富，进攻组织能力强。如果防线稳定，淘汰赛竞争力会明显提升。"
   },
   "英格兰":{
-    flag:"🏴",
-    prob:12,
-    rank:5,
+    flag:"🏴", prob:12, rank:5,
+    attack:88, defense:85, control:84,
     players:["贝林厄姆","凯恩","福登","萨卡"],
     analysis:"英格兰阵容豪华，攻防平衡度高。关键问题在于大赛淘汰赛阶段的临场调整。"
   },
   "西班牙":{
-    flag:"🇪🇸",
-    prob:11,
-    rank:6,
+    flag:"🇪🇸", prob:11, rank:6,
+    attack:84, defense:83, control:92,
     players:["佩德里","罗德里","亚马尔","奥尔莫"],
     analysis:"西班牙控球体系成熟，节奏控制能力强。面对高强度反击球队时需要提高终结效率。"
   },
   "葡萄牙":{
-    flag:"🇵🇹",
-    prob:10,
-    rank:7,
+    flag:"🇵🇹", prob:10, rank:7,
+    attack:86, defense:81, control:82,
     players:["C罗","B费","莱奥","贝尔纳多"],
     analysis:"葡萄牙阵容深度出色，前场选择丰富。若攻防转换更稳定，有机会进入四强。"
   },
   "荷兰":{
-    flag:"🇳🇱",
-    prob:9,
-    rank:8,
+    flag:"🇳🇱", prob:9, rank:8,
+    attack:82, defense:87, control:80,
     players:["范戴克","德容","加克波","德利赫特"],
     analysis:"荷兰身体对抗和防守质量较高，适合淘汰赛。但进攻端持续输出能力仍是关键。"
   },
   "比利时":{
-    flag:"🇧🇪",
-    prob:8,
-    rank:9,
+    flag:"🇧🇪", prob:8, rank:9,
+    attack:84, defense:76, control:80,
     players:["德布劳内","卢卡库","多库","奥纳纳"],
     analysis:"比利时仍有高水平核心球员，但阵容年龄结构和防守稳定性会影响上限。"
   },
   "乌拉圭":{
-    flag:"🇺🇾",
-    prob:7,
-    rank:10,
+    flag:"🇺🇾", prob:7, rank:10,
+    attack:81, defense:84, control:76,
     players:["努涅斯","巴尔韦德","阿劳霍","本坦库尔"],
     analysis:"乌拉圭身体强度高，比赛韧性强。若进攻效率提升，有爆冷进入后期阶段的可能。"
   }
 };
+
+let matches = [
+  {date:"今日", game:"西班牙 vs 沙特", home:"西班牙", away:"沙特", homeWin:57, draw:26, awayWin:17, score:"2-0"},
+  {date:"今日", game:"比利时 vs 伊朗", home:"比利时", away:"伊朗", homeWin:53, draw:24, awayWin:23, score:"2-1"},
+  {date:"今日", game:"乌拉圭 vs 佛得角", home:"乌拉圭", away:"佛得角", homeWin:62, draw:22, awayWin:16, score:"2-0"},
+  {date:"明日", game:"阿根廷 vs 奥地利", home:"阿根廷", away:"奥地利", homeWin:65, draw:17, awayWin:18, score:"2-1"},
+  {date:"明日", game:"法国 vs 伊拉克", home:"法国", away:"伊拉克", homeWin:94, draw:4, awayWin:2, score:"4-0"}
+];
+
+let mvp = [
+  {name:"姆巴佩", team:"法国", prob:31},
+  {name:"贝林厄姆", team:"英格兰", prob:21},
+  {name:"维尼修斯", team:"巴西", prob:17},
+  {name:"梅西", team:"阿根廷", prob:12},
+  {name:"穆西亚拉", team:"德国", prob:8}
+];
 
 function predict(){
   let name = document.getElementById("team").value;
@@ -289,6 +263,14 @@ function predict(){
 
     <div class="bar-bg">
       <div class="bar" style="width:${t.prob}%"></div>
+    </div>
+
+    <h3>球队指数</h3>
+    <div class="grid">
+      <div class="stat">进攻：${t.attack}</div>
+      <div class="stat">防守：${t.defense}</div>
+      <div class="stat">控球：${t.control}</div>
+      <div class="stat">冠军概率：${t.prob}%</div>
     </div>
 
     <h3>核心球员</h3>
@@ -332,9 +314,7 @@ function renderMatches(){
 }
 
 function renderRanking(){
-  let ranking = Object.entries(teams)
-    .sort((a,b)=>b[1].prob-a[1].prob);
-
+  let ranking = Object.entries(teams).sort((a,b)=>b[1].prob-a[1].prob);
   let html = "";
 
   ranking.forEach((item,index)=>{
@@ -343,10 +323,7 @@ function renderRanking(){
 
     html += `
     <div class="rank-row">
-      <div>
-        ${index+1}. ${t.flag} ${name}
-        <span class="small">${t.prob}%</span>
-      </div>
+      <div>${index+1}. ${t.flag} ${name} <span class="small">${t.prob}%</span></div>
       <div class="bar-bg">
         <div class="bar" style="width:${t.prob}%"></div>
       </div>
@@ -357,8 +334,53 @@ function renderRanking(){
   document.getElementById("ranking").innerHTML = html;
 }
 
+function renderSemis(){
+  let top4 = Object.entries(teams).sort((a,b)=>b[1].prob-a[1].prob).slice(0,4);
+  let html = "";
+
+  top4.forEach(item=>{
+    let name = item[0];
+    let t = item[1];
+
+    html += `
+    <div class="stat">
+      <div class="big">${t.flag}</div>
+      <b>${name}</b>
+      <p class="small">四强热门</p>
+    </div>
+    `;
+  });
+
+  document.getElementById("semis").innerHTML = html;
+}
+
+function renderMVP(){
+  let html = "";
+
+  mvp.forEach((p,index)=>{
+    html += `
+    <div class="rank-row">
+      <div>${index+1}. ${p.name} · ${p.team} <span class="small">${p.prob}%</span></div>
+      <div class="bar-bg">
+        <div class="bar" style="width:${p.prob}%"></div>
+      </div>
+    </div>
+    `;
+  });
+
+  document.getElementById("mvp").innerHTML = html;
+}
+
+function renderUpdateTime(){
+  document.getElementById("update").innerHTML =
+  "最后更新：" + new Date().toLocaleString() + "｜预测仅供分析，不构成投注建议。";
+}
+
 renderMatches();
+renderSemis();
+renderMVP();
 renderRanking();
+renderUpdateTime();
 </script>
 
 </body>
