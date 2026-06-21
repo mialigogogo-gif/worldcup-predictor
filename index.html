@@ -3,32 +3,29 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>世界杯预测中心 V12</title>
+<title>世界杯预测中心 V13</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0f172a;color:white;padding:20px}
 h1{font-size:34px;margin:28px 0}.card{background:#1e293b;padding:18px;border-radius:18px;margin-bottom:18px}
-select,button{width:100%;padding:14px;margin-top:12px;border-radius:12px;font-size:16px}button{background:#2563eb;color:white;border:none;font-weight:bold}
-.result{margin-top:18px;background:#0f172a;padding:15px;border-radius:14px;border:1px solid #334155}.big{font-size:28px;font-weight:bold;color:#38bdf8}
-.small{color:#cbd5e1;font-size:14px}.bar-bg{background:#334155;height:12px;border-radius:10px;overflow:hidden;margin-top:5px}.bar{height:12px;background:#38bdf8;border-radius:10px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stat{background:#0f172a;padding:12px;border-radius:12px;border:1px solid #334155}
+select,button{width:100%;padding:14px;margin-top:12px;border-radius:12px;font-size:16px}
+button{background:#2563eb;color:white;border:none;font-weight:bold}.result{margin-top:18px;background:#0f172a;padding:15px;border-radius:14px;border:1px solid #334155}
+.big{font-size:28px;font-weight:bold;color:#38bdf8}.small{color:#cbd5e1;font-size:14px}.bar-bg{background:#334155;height:12px;border-radius:10px;overflow:hidden;margin-top:5px}
+.bar{height:12px;background:#38bdf8;border-radius:10px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stat{background:#0f172a;padding:12px;border-radius:12px;border:1px solid #334155}
 .score{font-size:28px;color:#38bdf8;font-weight:bold}.ai{line-height:1.7;color:#e0f2fe}.footer{color:#94a3b8;font-size:13px;margin-top:30px}
 </style>
 </head>
 <body>
 
-<h1>⚽ 世界杯预测中心 V12</h1>
+<h1>⚽ 世界杯预测中心 V13</h1>
 
-<div class="card"><h2>冠军预测</h2><select id="team"></select><button onclick="predict()">开始预测</button><div id="result"></div></div>
-
+<div class="card"><h2>冠军预测｜全部48队</h2><select id="team"></select><button onclick="predict()">开始预测</button><div id="result"></div></div>
 <div class="card"><h2>今日比赛预测</h2><select id="matchDate" onchange="renderMatches()"></select><div id="matches"></div></div>
-
 <div class="card"><h2>🎲 世界杯模拟器</h2><button onclick="simulateCup()">模拟一次世界杯</button><div id="simulator"></div></div>
-
 <div class="card"><h2>冠军概率图表</h2><canvas id="championChart"></canvas></div>
 <div class="card"><h2>预计四强</h2><div class="grid" id="semis"></div></div>
 <div class="card"><h2>金球奖预测</h2><div id="mvp"></div></div>
-<div class="card"><h2>小组积分榜</h2><div id="groups"></div></div>
+<div class="card"><h2>小组积分榜｜12组修正版</h2><div id="groups"></div></div>
 <div class="card"><h2>淘汰赛预测树</h2><div id="bracket"></div></div>
 <div class="card"><h2>夺冠概率排行榜</h2><div id="ranking"></div></div>
 <div class="card"><h2>AI总冠军报告</h2><button onclick="generateReport()">生成AI报告</button><div id="report"></div></div>
@@ -37,138 +34,129 @@ select,button{width:100%;padding:14px;margin-top:12px;border-radius:12px;font-si
 <script>
 let todayDate="2026-06-21";
 
-let teams={
-"阿根廷":{flag:"🇦🇷",prob:27,rank:1,attack:92,defense:88,control:90,players:["梅西","劳塔罗","恩佐","麦卡利斯特"],analysis:"阿根廷在J组，稳定性和大赛经验突出，是当前模型最大热门。"},
-"巴西":{flag:"🇧🇷",prob:16,rank:2,attack:91,defense:82,control:84,players:["维尼修斯","罗德里戈","马丁内利","卡塞米罗"],analysis:"巴西在C组，个人能力强，进攻上限很高。"},
-"法国":{flag:"🇫🇷",prob:14,rank:3,attack:90,defense:86,control:83,players:["姆巴佩","登贝莱","格列兹曼","楚阿梅尼"],analysis:"法国在I组，阵容深度顶级，速度和冲击力强。"},
-"德国":{flag:"🇩🇪",prob:13,rank:4,attack:87,defense:82,control:86,players:["穆西亚拉","维尔茨","哈弗茨","基米希"],analysis:"德国在E组，进攻组织能力强。"},
-"英格兰":{flag:"🏴",prob:12,rank:5,attack:88,defense:85,control:84,players:["贝林厄姆","凯恩","福登","萨卡"],analysis:"英格兰在L组，阵容豪华，攻防平衡。"},
-"西班牙":{flag:"🇪🇸",prob:11,rank:6,attack:84,defense:83,control:92,players:["佩德里","罗德里","亚马尔","奥尔莫"],analysis:"西班牙在H组，控球体系成熟。"},
-"葡萄牙":{flag:"🇵🇹",prob:10,rank:7,attack:86,defense:81,control:82,players:["C罗","B费","莱奥","贝尔纳多"],analysis:"葡萄牙在K组，前场选择丰富。"},
-"荷兰":{flag:"🇳🇱",prob:9,rank:8,attack:82,defense:87,control:80,players:["范戴克","德容","加克波","德利赫特"],analysis:"荷兰在F组，防守质量高，适合淘汰赛。"},
-"比利时":{flag:"🇧🇪",prob:8,rank:9,attack:84,defense:76,control:80,players:["德布劳内","卢卡库","多库","奥纳纳"],analysis:"比利时在G组，进攻核心仍有威胁。"},
-"乌拉圭":{flag:"🇺🇾",prob:7,rank:10,attack:81,defense:84,control:76,players:["努涅斯","巴尔韦德","阿劳霍","本坦库尔"],analysis:"乌拉圭在H组，身体强度和韧性突出。"},
-"墨西哥":{flag:"🇲🇽",prob:4,rank:14,attack:75,defense:73,control:72,players:["希门尼斯"],analysis:"A组东道主之一。"},
-"韩国":{flag:"🇰🇷",prob:3,rank:22,attack:72,defense:70,control:73,players:["孙兴慜","李刚仁"],analysis:"A组，反击速度强。"},
-"捷克":{flag:"🇨🇿",prob:2,rank:33,attack:68,defense:70,control:66,players:["希克"],analysis:"A组，防守组织较稳。"},
-"南非":{flag:"🇿🇦",prob:1,rank:45,attack:63,defense:64,control:62,players:["暂无"],analysis:"A组。"},
-"加拿大":{flag:"🇨🇦",prob:4,rank:21,attack:76,defense:72,control:70,players:["戴维斯","戴维"],analysis:"B组，速度冲击强。"},
-"瑞士":{flag:"🇨🇭",prob:4,rank:18,attack:74,defense:76,control:72,players:["扎卡"],analysis:"B组，稳定性好。"},
-"波黑":{flag:"🇧🇦",prob:1,rank:44,attack:65,defense:62,control:64,players:["哲科"],analysis:"B组。"},
-"卡塔尔":{flag:"🇶🇦",prob:1,rank:50,attack:60,defense:58,control:60,players:["阿菲夫"],analysis:"B组。"},
-"摩洛哥":{flag:"🇲🇦",prob:4,rank:16,attack:74,defense:78,control:71,players:["阿什拉夫","齐耶赫"],analysis:"C组，防守和反击质量高。"},
-"海地":{flag:"🇭🇹",prob:1,rank:60,attack:58,defense:58,control:55,players:["暂无"],analysis:"C组。"},
-"苏格兰":{flag:"🏴",prob:2,rank:34,attack:66,defense:70,control:67,players:["罗伯逊","麦克托米奈"],analysis:"C组。"},
-"美国":{flag:"🇺🇸",prob:4,rank:15,attack:76,defense:74,control:73,players:["普利西奇","雷纳"],analysis:"D组，主场加成明显。"},
-"巴拉圭":{flag:"🇵🇾",prob:2,rank:32,attack:68,defense:73,control:64,players:["阿尔米隆"],analysis:"D组。"},
-"澳大利亚":{flag:"🇦🇺",prob:2,rank:29,attack:68,defense:71,control:65,players:["莱基"],analysis:"D组。"},
-"土耳其":{flag:"🇹🇷",prob:3,rank:23,attack:74,defense:70,control:72,players:["恰尔汗奥卢","居莱尔"],analysis:"D组。"},
-"科特迪瓦":{flag:"🇨🇮",prob:2,rank:30,attack:70,defense:70,control:66,players:["凯西"],analysis:"E组。"},
-"厄瓜多尔":{flag:"🇪🇨",prob:3,rank:20,attack:76,defense:78,control:72,players:["凯塞多"],analysis:"E组。"},
-"库拉索":{flag:"🇨🇼",prob:1,rank:48,attack:58,defense:60,control:55,players:["巴库纳"],analysis:"E组。"},
-"日本":{flag:"🇯🇵",prob:5,rank:15,attack:78,defense:75,control:80,players:["久保建英","三笘薰","远藤航"],analysis:"F组，传控和压迫能力强。"},
-"瑞典":{flag:"🇸🇪",prob:3,rank:24,attack:71,defense:72,control:68,players:["伊萨克"],analysis:"F组。"},
-"突尼斯":{flag:"🇹🇳",prob:1,rank:37,attack:65,defense:70,control:62,players:["斯希里"],analysis:"F组。"},
-"埃及":{flag:"🇪🇬",prob:2,rank:25,attack:73,defense:70,control:68,players:["萨拉赫"],analysis:"G组。"},
-"伊朗":{flag:"🇮🇷",prob:2,rank:28,attack:70,defense:72,control:66,players:["塔雷米","阿兹蒙"],analysis:"G组。"},
-"新西兰":{flag:"🇳🇿",prob:1,rank:43,attack:61,defense:63,control:58,players:["伍德"],analysis:"G组。"},
-"佛得角":{flag:"🇨🇻",prob:1,rank:40,attack:64,defense:65,control:60,players:["贝贝"],analysis:"H组。"},
-"沙特":{flag:"🇸🇦",prob:1,rank:31,attack:68,defense:66,control:64,players:["多萨里"],analysis:"H组。"},
-"塞内加尔":{flag:"🇸🇳",prob:4,rank:17,attack:75,defense:79,control:70,players:["马内","库利巴利"],analysis:"I组。"},
-"伊拉克":{flag:"🇮🇶",prob:1,rank:42,attack:62,defense:64,control:60,players:["侯赛因"],analysis:"I组。"},
-"挪威":{flag:"🇳🇴",prob:4,rank:19,attack:80,defense:72,control:69,players:["哈兰德","厄德高"],analysis:"I组。"},
-"阿尔及利亚":{flag:"🇩🇿",prob:2,rank:30,attack:72,defense:70,control:68,players:["马赫雷斯"],analysis:"J组。"},
-"奥地利":{flag:"🇦🇹",prob:4,rank:18,attack:76,defense:77,control:74,players:["阿拉巴","萨比策"],analysis:"J组。"},
-"约旦":{flag:"🇯🇴",prob:1,rank:46,attack:60,defense:62,control:58,players:["塔马里"],analysis:"J组。"},
-"刚果（金）":{flag:"🇨🇩",prob:1,rank:52,attack:62,defense:64,control:60,players:["暂无"],analysis:"K组。"},
-"乌兹别克斯坦":{flag:"🇺🇿",prob:1,rank:39,attack:64,defense:66,control:62,players:["暂无"],analysis:"K组。"},
-"哥伦比亚":{flag:"🇨🇴",prob:5,rank:13,attack:79,defense:75,control:76,players:["迪亚斯","哈梅斯"],analysis:"K组。"},
-"克罗地亚":{flag:"🇭🇷",prob:4,rank:12,attack:74,defense:76,control:80,players:["莫德里奇"],analysis:"L组。"},
-"加纳":{flag:"🇬🇭",prob:2,rank:35,attack:68,defense:66,control:64,players:["库杜斯"],analysis:"L组。"},
-"巴拿马":{flag:"🇵🇦",prob:1,rank:47,attack:60,defense:61,control:58,players:["暂无"],analysis:"L组。"}
+let groups={
+"A":[["墨西哥",6,2,2,0,0,3,0],["韩国",3,2,1,0,1,2,2],["捷克",1,2,0,1,1,2,3],["南非",1,2,0,1,1,1,3]],
+"B":[["加拿大",4,2,1,1,0,7,1],["瑞士",4,2,1,1,0,5,2],["波黑",1,2,0,1,1,2,5],["卡塔尔",1,2,0,1,1,1,7]],
+"C":[["巴西",4,2,1,1,0,4,1],["摩洛哥",4,2,1,1,0,2,1],["苏格兰",3,2,1,0,1,1,1],["海地",0,2,0,0,2,0,4]],
+"D":[["美国",6,2,2,0,0,6,1],["澳大利亚",3,2,1,0,1,2,2],["巴拉圭",3,2,1,0,1,2,4],["土耳其",0,2,0,0,2,0,3]],
+"E":[["德国",6,2,2,0,0,9,2],["科特迪瓦",3,2,1,0,1,2,2],["厄瓜多尔",1,2,0,1,1,0,1],["库拉索",1,2,0,1,1,1,7]],
+"F":[["荷兰",4,2,1,1,0,7,3],["瑞典",3,2,1,0,1,6,6],["日本",1,1,0,1,0,2,2],["突尼斯",0,1,0,0,1,1,5]],
+"G":[["比利时",1,1,0,1,0,1,1],["埃及",1,1,0,1,0,1,1],["伊朗",1,1,0,1,0,2,2],["新西兰",1,1,0,1,0,2,2]],
+"H":[["西班牙",1,1,0,1,0,0,0],["佛得角",1,1,0,1,0,0,0],["沙特",1,1,0,1,0,1,1],["乌拉圭",1,1,0,1,0,1,1]],
+"I":[["法国",3,1,1,0,0,3,1],["挪威",3,1,1,0,0,4,1],["塞内加尔",0,1,0,0,1,1,3],["伊拉克",0,1,0,0,1,1,4]],
+"J":[["阿根廷",3,1,1,0,0,3,0],["奥地利",3,1,1,0,0,3,1],["阿尔及利亚",0,1,0,0,1,0,3],["约旦",0,1,0,0,1,1,3]],
+"K":[["哥伦比亚",3,1,1,0,0,3,1],["葡萄牙",1,1,0,1,0,1,1],["刚果（金）",1,1,0,1,0,1,1],["乌兹别克斯坦",0,1,0,0,1,1,3]],
+"L":[["英格兰",3,1,1,0,0,4,2],["加纳",3,1,1,0,0,1,0],["克罗地亚",0,1,0,0,1,2,4],["巴拿马",0,1,0,0,1,0,1]]
+};
+
+let flag={
+"墨西哥":"🇲🇽","韩国":"🇰🇷","捷克":"🇨🇿","南非":"🇿🇦","加拿大":"🇨🇦","瑞士":"🇨🇭","波黑":"🇧🇦","卡塔尔":"🇶🇦",
+"巴西":"🇧🇷","摩洛哥":"🇲🇦","苏格兰":"🏴","海地":"🇭🇹","美国":"🇺🇸","澳大利亚":"🇦🇺","巴拉圭":"🇵🇾","土耳其":"🇹🇷",
+"德国":"🇩🇪","科特迪瓦":"🇨🇮","厄瓜多尔":"🇪🇨","库拉索":"🇨🇼","荷兰":"🇳🇱","瑞典":"🇸🇪","日本":"🇯🇵","突尼斯":"🇹🇳",
+"比利时":"🇧🇪","埃及":"🇪🇬","伊朗":"🇮🇷","新西兰":"🇳🇿","西班牙":"🇪🇸","佛得角":"🇨🇻","沙特":"🇸🇦","乌拉圭":"🇺🇾",
+"法国":"🇫🇷","挪威":"🇳🇴","塞内加尔":"🇸🇳","伊拉克":"🇮🇶","阿根廷":"🇦🇷","奥地利":"🇦🇹","阿尔及利亚":"🇩🇿","约旦":"🇯🇴",
+"葡萄牙":"🇵🇹","刚果（金）":"🇨🇩","乌兹别克斯坦":"🇺🇿","哥伦比亚":"🇨🇴","英格兰":"🏴","克罗地亚":"🇭🇷","加纳":"🇬🇭","巴拿马":"🇵🇦"
+};
+
+let power={
+"阿根廷":[27,1,92,88,90,"梅西 · 劳塔罗 · 恩佐 · 麦卡利斯特"],
+"巴西":[16,2,91,82,84,"维尼修斯 · 罗德里戈 · 马丁内利 · 卡塞米罗"],
+"法国":[14,3,90,86,83,"姆巴佩 · 登贝莱 · 格列兹曼 · 楚阿梅尼"],
+"德国":[13,4,87,82,86,"穆西亚拉 · 维尔茨 · 哈弗茨 · 基米希"],
+"英格兰":[12,5,88,85,84,"贝林厄姆 · 凯恩 · 福登 · 萨卡"],
+"西班牙":[11,6,84,83,92,"佩德里 · 罗德里 · 亚马尔 · 奥尔莫"],
+"葡萄牙":[10,7,86,81,82,"C罗 · B费 · 莱奥 · 贝尔纳多"],
+"荷兰":[9,8,82,87,80,"范戴克 · 德容 · 加克波 · 德利赫特"],
+"比利时":[8,9,84,76,80,"德布劳内 · 卢卡库 · 多库 · 奥纳纳"],
+"乌拉圭":[7,10,81,84,76,"努涅斯 · 巴尔韦德 · 阿劳霍 · 本坦库尔"],
+"日本":[5,15,78,75,80,"久保建英 · 三笘薰 · 远藤航"],
+"哥伦比亚":[5,13,79,75,76,"迪亚斯 · 哈梅斯"],
+"美国":[4,16,76,74,73,"普利西奇 · 雷纳"],
+"加拿大":[4,21,76,72,70,"戴维斯 · 戴维"],
+"瑞士":[4,18,74,76,72,"扎卡"],
+"奥地利":[4,18,76,77,74,"阿拉巴 · 萨比策"],
+"塞内加尔":[4,17,75,79,70,"马内 · 库利巴利"],
+"克罗地亚":[4,12,74,76,80,"莫德里奇"],
+"摩洛哥":[4,16,74,78,71,"阿什拉夫 · 齐耶赫"],
+"土耳其":[3,23,74,70,72,"恰尔汗奥卢 · 居莱尔"],
+"韩国":[3,22,72,70,73,"孙兴慜 · 李刚仁"],
+"瑞典":[3,24,71,72,68,"伊萨克"],
+"厄瓜多尔":[3,20,76,78,72,"凯塞多"],
+"埃及":[2,25,73,70,68,"萨拉赫"],
+"伊朗":[2,28,70,72,66,"塔雷米 · 阿兹蒙"],
+"加纳":[2,35,68,66,64,"库杜斯"]
 };
 
 let schedule=[
-{date:"2026-06-21",time:"00:00",stage:"小组赛 F组",home:"突尼斯",away:"日本"},
-{date:"2026-06-21",time:"12:00",stage:"小组赛 H组",home:"西班牙",away:"沙特"},
-{date:"2026-06-21",time:"15:00",stage:"小组赛 G组",home:"比利时",away:"伊朗"},
-{date:"2026-06-21",time:"18:00",stage:"小组赛 H组",home:"乌拉圭",away:"佛得角"},
-{date:"2026-06-21",time:"21:00",stage:"小组赛 G组",home:"新西兰",away:"埃及"},
-{date:"2026-06-22",time:"13:00",stage:"小组赛 J组",home:"阿根廷",away:"奥地利"},
-{date:"2026-06-22",time:"17:00",stage:"小组赛 I组",home:"法国",away:"伊拉克"},
-{date:"2026-06-22",time:"20:00",stage:"小组赛 I组",home:"挪威",away:"塞内加尔"},
-{date:"2026-06-22",time:"23:00",stage:"小组赛 J组",home:"约旦",away:"阿尔及利亚"},
-{date:"2026-06-23",time:"13:00",stage:"小组赛 K组",home:"葡萄牙",away:"乌兹别克斯坦"},
-{date:"2026-06-23",time:"16:00",stage:"小组赛 L组",home:"英格兰",away:"加纳"},
-{date:"2026-06-23",time:"19:00",stage:"小组赛 L组",home:"巴拿马",away:"克罗地亚"},
-{date:"2026-06-23",time:"22:00",stage:"小组赛 K组",home:"哥伦比亚",away:"刚果（金）"}
+["2026-06-21","00:00","小组赛 F组","突尼斯","日本"],
+["2026-06-21","12:00","小组赛 H组","西班牙","沙特"],
+["2026-06-21","15:00","小组赛 G组","比利时","伊朗"],
+["2026-06-21","18:00","小组赛 H组","乌拉圭","佛得角"],
+["2026-06-21","21:00","小组赛 G组","新西兰","埃及"],
+["2026-06-22","13:00","小组赛 J组","阿根廷","奥地利"],
+["2026-06-22","17:00","小组赛 I组","法国","伊拉克"],
+["2026-06-22","20:00","小组赛 I组","挪威","塞内加尔"],
+["2026-06-22","23:00","小组赛 J组","约旦","阿尔及利亚"],
+["2026-06-23","13:00","小组赛 K组","葡萄牙","乌兹别克斯坦"],
+["2026-06-23","16:00","小组赛 L组","英格兰","加纳"],
+["2026-06-23","19:00","小组赛 L组","巴拿马","克罗地亚"],
+["2026-06-23","22:00","小组赛 K组","哥伦比亚","刚果（金）"]
 ];
-
-let groups={
-"A":[["墨西哥",6],["韩国",3],["捷克",1],["南非",1]],
-"B":[["加拿大",4],["瑞士",4],["波黑",1],["卡塔尔",1]],
-"C":[["巴西",4],["摩洛哥",4],["苏格兰",3],["海地",0]],
-"D":[["美国",6],["澳大利亚",3],["巴拉圭",3],["土耳其",0]],
-"E":[["德国",6],["科特迪瓦",3],["厄瓜多尔",1],["库拉索",1]],
-"F":[["荷兰",4],["瑞典",3],["日本",1],["突尼斯",0]],
-"G":[["比利时",1],["埃及",1],["伊朗",1],["新西兰",1]],
-"H":[["西班牙",1],["佛得角",1],["沙特",1],["乌拉圭",1]],
-"I":[["法国",3],["挪威",3],["塞内加尔",0],["伊拉克",0]],
-"J":[["阿根廷",3],["奥地利",3],["阿尔及利亚",0],["约旦",0]],
-"K":[["哥伦比亚",3],["葡萄牙",1],["刚果（金）",1],["乌兹别克斯坦",0]],
-"L":[["英格兰",3],["加纳",3],["克罗地亚",0],["巴拿马",0]]
-};
 
 let mvp=[["姆巴佩","法国",31],["贝林厄姆","英格兰",21],["维尼修斯","巴西",17],["梅西","阿根廷",12],["穆西亚拉","德国",8]];
 
-function getTeam(n){return teams[n]||{flag:"⚪",prob:1,rank:99,attack:62,defense:62,control:62,players:["暂无数据"],analysis:"该队数据尚未接入模型。"}}
-function strength(n){let t=getTeam(n);return t.attack*.45+t.defense*.35+t.control*.2}
-
-function predictMatch(h,a){
-let hs=strength(h),as=strength(a),diff=hs-as;
-let hw=Math.max(12,Math.min(78,Math.round(38+diff*1.1)));
-let aw=Math.max(8,Math.min(70,Math.round(34-diff*.9)));
+function allTeams(){let arr=[];Object.values(groups).forEach(g=>g.forEach(t=>arr.push(t[0])));return arr}
+function groupOf(n){for(let g in groups){if(groups[g].some(x=>x[0]==n))return g}return "-"}
+function data(n){let p=power[n]||[1,99,62,62,62,"暂无核心球员数据"];return{prob:p[0],rank:p[1],atk:p[2],def:p[3],ctl:p[4],players:p[5]}}
+function strength(n){let x=data(n);return x.atk*.45+x.def*.35+x.ctl*.2}
+function match(h,a){
+let d=strength(h)-strength(a),hw=Math.max(12,Math.min(78,Math.round(38+d*1.1))),aw=Math.max(8,Math.min(70,Math.round(34-d*.9)));
 let dr=100-hw-aw;if(dr<8){dr=8;hw-=4;aw-=4}
-let hg=Math.max(0,Math.round((hs-58)/18)),ag=Math.max(0,Math.round((as-58)/20));
+let hg=Math.max(0,Math.round((strength(h)-58)/18)),ag=Math.max(0,Math.round((strength(a)-58)/20));
 if(hw>60&&hg<=ag)hg=ag+1;if(aw>55&&ag<=hg)ag=hg+1;
-return{hw,dr,aw,score:hg+"-"+ag,conf:Math.max(hw,dr,aw),ho:(100/hw).toFixed(2),do:(100/dr).toFixed(2),ao:(100/aw).toFixed(2),scores:[hg+"-"+ag,Math.max(0,hg-1)+"-"+ag,hg+"-"+Math.max(0,ag-1)]}
+return{hw,dr,aw,score:hg+"-"+ag,conf:Math.max(hw,dr,aw),ho:(100/hw).toFixed(2),do:(100/dr).toFixed(2),ao:(100/aw).toFixed(2),top:[hg+"-"+ag,Math.max(0,hg-1)+"-"+ag,hg+"-"+Math.max(0,ag-1)]}
 }
 
 function init(){
-document.getElementById("team").innerHTML=Object.keys(teams).filter(n=>teams[n].rank<=10).map(n=>`<option value="${n}">${teams[n].flag} ${n}</option>`).join("");
-let ds=[...new Set(schedule.map(x=>x.date))];
-document.getElementById("matchDate").innerHTML=ds.map(d=>`<option value="${d}" ${d==todayDate?"selected":""}>${d}</option>`).join("");
-predict();renderMatches();renderRanking();renderGroups();renderSemis();renderMVP();renderBracket();renderChart();renderUpdate();
+document.getElementById("team").innerHTML=allTeams().map(n=>`<option value="${n}">${flag[n]||"⚪"} ${n}｜${groupOf(n)}组</option>`).join("");
+let dates=[...new Set(schedule.map(x=>x[0]))];
+document.getElementById("matchDate").innerHTML=dates.map(d=>`<option value="${d}" ${d==todayDate?"selected":""}>${d}</option>`).join("");
+predict();renderMatches();renderGroups();renderRanking();renderSemis();renderMVP();renderBracket();renderChart();renderUpdate();
 }
 
 function predict(){
-let n=document.getElementById("team").value,t=getTeam(n);
-document.getElementById("result").innerHTML=`<div class="result"><div class="big">${t.flag} ${n}</div><p>🏆 夺冠概率：<b>${t.prob}%</b></p><p>📊 全球排名：第 <b>${t.rank}</b> 名</p><div class="bar-bg"><div class="bar" style="width:${t.prob}%"></div></div><h3>球队指数</h3><div class="grid"><div class="stat">进攻：${t.attack}</div><div class="stat">防守：${t.defense}</div><div class="stat">控球：${t.control}</div><div class="stat">冠军概率：${t.prob}%</div></div><h3>核心球员</h3><p>${t.players.join(" · ")}</p><h3>AI分析</h3><p class="ai">${t.analysis}</p></div>`;
+let n=document.getElementById("team").value,x=data(n);
+document.getElementById("result").innerHTML=`<div class="result"><div class="big">${flag[n]||"⚪"} ${n}</div><p>小组：${groupOf(n)}组</p><p>🏆 夺冠概率：<b>${x.prob}%</b></p><p>📊 模型排名：第 <b>${x.rank}</b> 名</p><div class="bar-bg"><div class="bar" style="width:${x.prob}%"></div></div><h3>球队指数</h3><div class="grid"><div class="stat">进攻：${x.atk}</div><div class="stat">防守：${x.def}</div><div class="stat">控球：${x.ctl}</div><div class="stat">综合：${Math.round(strength(n))}</div></div><h3>核心球员</h3><p>${x.players}</p><h3>AI分析</h3><p class="ai">${n}位于${groupOf(n)}组，当前模型综合强度为${Math.round(strength(n))}。${x.prob>=10?"具备冲击淘汰赛后段的实力。":"需要依靠防守、反击或定位球争取出线机会。"}</p></div>`;
 }
 
 function renderMatches(){
-let d=document.getElementById("matchDate").value||todayDate,html="";
-schedule.filter(m=>m.date==d).forEach(m=>{
-let p=predictMatch(m.home,m.away);
-html+=`<div class="result"><h3>${m.date} ${m.time}</h3><p class="small">🏆 ${m.stage}</p><div class="big">${getTeam(m.home).flag} ${m.home} vs ${getTeam(m.away).flag} ${m.away}</div><p>预测比分：</p><div class="score">${p.score}</div><p>AI信心指数：${p.conf}%</p><div class="bar-bg"><div class="bar" style="width:${p.conf}%"></div></div><p>${m.home}胜：${p.hw}%｜赔率 ${p.ho}</p><div class="bar-bg"><div class="bar" style="width:${p.hw}%"></div></div><p>平局：${p.dr}%｜赔率 ${p.do}</p><div class="bar-bg"><div class="bar" style="width:${p.dr}%"></div></div><p>${m.away}胜：${p.aw}%｜赔率 ${p.ao}</p><div class="bar-bg"><div class="bar" style="width:${p.aw}%"></div></div><h3>最可能比分 TOP3</h3><p>① ${p.scores[0]}</p><p>② ${p.scores[1]}</p><p>③ ${p.scores[2]}</p><h3>AI赛事分析</h3><p class="ai">${m.home}综合强度 ${Math.round(strength(m.home))}，${m.away}综合强度 ${Math.round(strength(m.away))}。模型认为${p.hw>=p.aw?m.home:m.away}不败机会更高。</p></div>`;
+let d=document.getElementById("matchDate").value,html="";
+schedule.filter(x=>x[0]==d).forEach(m=>{
+let p=match(m[3],m[4]);
+html+=`<div class="result"><h3>${m[0]} ${m[1]}</h3><p class="small">🏆 ${m[2]}</p><div class="big">${flag[m[3]]||"⚪"} ${m[3]} vs ${flag[m[4]]||"⚪"} ${m[4]}</div><p>预测比分：</p><div class="score">${p.score}</div><p>AI信心指数：${p.conf}%</p><div class="bar-bg"><div class="bar" style="width:${p.conf}%"></div></div><p>${m[3]}胜：${p.hw}%｜赔率 ${p.ho}</p><div class="bar-bg"><div class="bar" style="width:${p.hw}%"></div></div><p>平局：${p.dr}%｜赔率 ${p.do}</p><div class="bar-bg"><div class="bar" style="width:${p.dr}%"></div></div><p>${m[4]}胜：${p.aw}%｜赔率 ${p.ao}</p><div class="bar-bg"><div class="bar" style="width:${p.aw}%"></div></div><h3>最可能比分 TOP3</h3><p>① ${p.top[0]}</p><p>② ${p.top[1]}</p><p>③ ${p.top[2]}</p></div>`;
 });
 document.getElementById("matches").innerHTML=html;
 }
 
-function simulateCup(){
-let r=Object.entries(teams).filter(x=>x[1].rank<=10).sort((a,b)=>b[1].prob-a[1].prob),w=[];
-r.forEach(x=>{for(let i=0;i<x[1].prob;i++)w.push(x)});
-let c=w[Math.floor(Math.random()*w.length)],s,t;do{s=r[Math.floor(Math.random()*5)]}while(s[0]==c[0]);do{t=r[Math.floor(Math.random()*7)]}while(t[0]==c[0]||t[0]==s[0]);
-document.getElementById("simulator").innerHTML=`<div class="result"><h3>🏆 模拟结果</h3><p>冠军：${c[1].flag} ${c[0]}</p><p>亚军：${s[1].flag} ${s[0]}</p><p>季军：${t[1].flag} ${t[0]}</p></div>`;
+function renderGroups(){
+document.getElementById("groups").innerHTML=Object.keys(groups).map(g=>`<div class="result"><h3>${g}组</h3>${groups[g].map((r,i)=>`<p>${i+1}. ${flag[r[0]]||"⚪"} ${r[0]}｜${r[1]}分｜赛${r[2]}｜胜${r[3]} 平${r[4]} 负${r[5]}｜进${r[6]} 失${r[7]}｜净${r[6]-r[7]}</p>`).join("")}</div>`).join("");
 }
 
-function renderRanking(){document.getElementById("ranking").innerHTML=Object.entries(teams).filter(x=>x[1].rank<=10).sort((a,b)=>b[1].prob-a[1].prob).map((x,i)=>`<div class="rank-row"><div>${i+1}. ${x[1].flag} ${x[0]} <span class="small">${x[1].prob}%</span></div><div class="bar-bg"><div class="bar" style="width:${x[1].prob}%"></div></div></div>`).join("")}
-function renderSemis(){document.getElementById("semis").innerHTML=Object.entries(teams).filter(x=>x[1].rank<=10).sort((a,b)=>b[1].prob-a[1].prob).slice(0,4).map(x=>`<div class="stat"><div class="big">${x[1].flag}</div><b>${x[0]}</b><p class="small">四强热门</p></div>`).join("")}
+function simulateCup(){
+let ranked=allTeams().sort((a,b)=>data(b).prob-data(a).prob);
+let weighted=[];ranked.slice(0,24).forEach(n=>{for(let i=0;i<Math.max(1,data(n).prob);i++)weighted.push(n)});
+let c=weighted[Math.floor(Math.random()*weighted.length)],r,t;
+do{r=ranked[Math.floor(Math.random()*12)]}while(r==c);
+do{t=ranked[Math.floor(Math.random()*16)]}while(t==c||t==r);
+document.getElementById("simulator").innerHTML=`<div class="result"><h3>🏆 模拟结果</h3><p>冠军：${flag[c]||"⚪"} ${c}</p><p>亚军：${flag[r]||"⚪"} ${r}</p><p>季军：${flag[t]||"⚪"} ${t}</p></div>`;
+}
+
+function renderRanking(){let top=allTeams().sort((a,b)=>data(b).prob-data(a).prob).slice(0,20);document.getElementById("ranking").innerHTML=top.map((n,i)=>`<div class="rank-row"><div>${i+1}. ${flag[n]||"⚪"} ${n}｜${groupOf(n)}组 <span class="small">${data(n).prob}%</span></div><div class="bar-bg"><div class="bar" style="width:${data(n).prob}%"></div></div></div>`).join("")}
+function renderSemis(){let top=allTeams().sort((a,b)=>data(b).prob-data(a).prob).slice(0,4);document.getElementById("semis").innerHTML=top.map(n=>`<div class="stat"><div class="big">${flag[n]||"⚪"}</div><b>${n}</b><p class="small">${groupOf(n)}组｜四强热门</p></div>`).join("")}
 function renderMVP(){document.getElementById("mvp").innerHTML=mvp.map((p,i)=>`<div class="rank-row"><div>${i+1}. ${p[0]} · ${p[1]} <span class="small">${p[2]}%</span></div><div class="bar-bg"><div class="bar" style="width:${p[2]}%"></div></div></div>`).join("")}
-function renderGroups(){document.getElementById("groups").innerHTML=Object.keys(groups).map(g=>`<div class="result"><h3>${g}组</h3>${groups[g].map((r,i)=>`<p>${i+1}. ${getTeam(r[0]).flag} ${r[0]} · ${r[1]}分</p>`).join("")}</div>`).join("")}
-function renderBracket(){document.getElementById("bracket").innerHTML=`<div class="result"><p>16强：A2 vs B2</p><p>16强：F1 vs C2</p><p>16强：J1 vs 最佳第三名</p><p>半决赛预测：阿根廷 vs 巴西</p><p>半决赛预测：法国 vs 英格兰</p><p class="score">预测决赛：阿根廷 vs 法国</p></div>`}
-function renderChart(){let labels=Object.keys(teams).filter(n=>teams[n].rank<=10),values=labels.map(n=>teams[n].prob);new Chart(document.getElementById("championChart"),{type:"doughnut",data:{labels,datasets:[{data:values}]},options:{plugins:{legend:{labels:{color:"white"}}}}})}
-function generateReport(){let top=Object.entries(teams).filter(x=>x[1].rank<=10).sort((a,b)=>b[1].prob-a[1].prob)[0];document.getElementById("report").innerHTML=`<div class="result"><h3>AI总冠军报告</h3><p class="ai">当前模型最看好 ${top[1].flag} ${top[0]}，冠军概率 ${top[1].prob}%。该队攻防均衡，淘汰赛稳定性最高。</p></div>`}
+function renderBracket(){document.getElementById("bracket").innerHTML=`<div class="result"><p>预测半决赛：阿根廷 vs 巴西</p><p>预测半决赛：法国 vs 英格兰</p><p class="score">预测决赛：阿根廷 vs 法国</p></div>`}
+function renderChart(){if(!window.Chart)return;let top=allTeams().sort((a,b)=>data(b).prob-data(a).prob).slice(0,10);new Chart(document.getElementById("championChart"),{type:"doughnut",data:{labels:top,datasets:[{data:top.map(n=>data(n).prob)}]},options:{plugins:{legend:{labels:{color:"white"}}}}})}
+function generateReport(){let n=allTeams().sort((a,b)=>data(b).prob-data(a).prob)[0];document.getElementById("report").innerHTML=`<div class="result"><h3>AI总冠军报告</h3><p class="ai">当前模型最看好 ${flag[n]} ${n}，位于${groupOf(n)}组，冠军概率 ${data(n).prob}%。</p></div>`}
 function renderUpdate(){document.getElementById("update").innerHTML="最后更新："+new Date().toLocaleString()+"｜预测仅供分析，不构成投注建议。"}
 
 init();
