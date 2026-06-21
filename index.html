@@ -3,161 +3,179 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>世界杯预测中心 V13</title>
+<title>世界杯预测中心 V14</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0f172a;color:white;padding:20px}
-h1{font-size:34px;margin:28px 0}.card{background:#1e293b;padding:18px;border-radius:18px;margin-bottom:18px}
+h1{font-size:34px}.card{background:#1e293b;padding:18px;border-radius:18px;margin-bottom:18px}
 select,button{width:100%;padding:14px;margin-top:12px;border-radius:12px;font-size:16px}
-button{background:#2563eb;color:white;border:none;font-weight:bold}.result{margin-top:18px;background:#0f172a;padding:15px;border-radius:14px;border:1px solid #334155}
-.big{font-size:28px;font-weight:bold;color:#38bdf8}.small{color:#cbd5e1;font-size:14px}.bar-bg{background:#334155;height:12px;border-radius:10px;overflow:hidden;margin-top:5px}
-.bar{height:12px;background:#38bdf8;border-radius:10px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stat{background:#0f172a;padding:12px;border-radius:12px;border:1px solid #334155}
-.score{font-size:28px;color:#38bdf8;font-weight:bold}.ai{line-height:1.7;color:#e0f2fe}.footer{color:#94a3b8;font-size:13px;margin-top:30px}
+button{background:#2563eb;color:white;border:none;font-weight:bold}
+.result{margin-top:18px;background:#0f172a;padding:15px;border-radius:14px;border:1px solid #334155}
+.big{font-size:28px;font-weight:bold;color:#38bdf8}.small{color:#cbd5e1;font-size:14px}
+.bar-bg{background:#334155;height:12px;border-radius:10px;overflow:hidden;margin-top:5px}
+.bar{height:12px;background:#38bdf8}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat{background:#0f172a;padding:12px;border-radius:12px;border:1px solid #334155}
+.score{font-size:28px;color:#38bdf8;font-weight:bold}.footer{color:#94a3b8;font-size:13px}
 </style>
 </head>
 <body>
 
-<h1>⚽ 世界杯预测中心 V13</h1>
+<h1>⚽ 世界杯预测中心 V14</h1>
 
-<div class="card"><h2>冠军预测｜全部48队</h2><select id="team"></select><button onclick="predict()">开始预测</button><div id="result"></div></div>
+<div class="card"><h2>冠军预测｜48队</h2><select id="team"></select><button onclick="predict()">开始预测</button><div id="result"></div></div>
 <div class="card"><h2>今日比赛预测</h2><select id="matchDate" onchange="renderMatches()"></select><div id="matches"></div></div>
-<div class="card"><h2>🎲 世界杯模拟器</h2><button onclick="simulateCup()">模拟一次世界杯</button><div id="simulator"></div></div>
-<div class="card"><h2>冠军概率图表</h2><canvas id="championChart"></canvas></div>
-<div class="card"><h2>预计四强</h2><div class="grid" id="semis"></div></div>
-<div class="card"><h2>金球奖预测</h2><div id="mvp"></div></div>
-<div class="card"><h2>小组积分榜｜12组修正版</h2><div id="groups"></div></div>
-<div class="card"><h2>淘汰赛预测树</h2><div id="bracket"></div></div>
+<div class="card"><h2>🎲 单次世界杯模拟</h2><button onclick="simulateOneCup()">模拟一次世界杯</button><div id="oneSim"></div></div>
+<div class="card"><h2>📊 1000次模拟统计</h2><button onclick="simulateManyCups()">运行1000次模拟</button><div id="manySim"></div></div>
+<div class="card"><h2>冠军概率图表</h2><canvas id="chart"></canvas></div>
+<div class="card"><h2>小组积分榜</h2><div id="groups"></div></div>
 <div class="card"><h2>夺冠概率排行榜</h2><div id="ranking"></div></div>
-<div class="card"><h2>AI总冠军报告</h2><button onclick="generateReport()">生成AI报告</button><div id="report"></div></div>
+<div class="card"><h2>AI总冠军报告</h2><button onclick="report()">生成AI报告</button><div id="report"></div></div>
 <div class="footer" id="update"></div>
 
 <script>
 let todayDate="2026-06-21";
 
 let groups={
-"A":[["墨西哥",6,2,2,0,0,3,0],["韩国",3,2,1,0,1,2,2],["捷克",1,2,0,1,1,2,3],["南非",1,2,0,1,1,1,3]],
-"B":[["加拿大",4,2,1,1,0,7,1],["瑞士",4,2,1,1,0,5,2],["波黑",1,2,0,1,1,2,5],["卡塔尔",1,2,0,1,1,1,7]],
-"C":[["巴西",4,2,1,1,0,4,1],["摩洛哥",4,2,1,1,0,2,1],["苏格兰",3,2,1,0,1,1,1],["海地",0,2,0,0,2,0,4]],
-"D":[["美国",6,2,2,0,0,6,1],["澳大利亚",3,2,1,0,1,2,2],["巴拉圭",3,2,1,0,1,2,4],["土耳其",0,2,0,0,2,0,3]],
-"E":[["德国",6,2,2,0,0,9,2],["科特迪瓦",3,2,1,0,1,2,2],["厄瓜多尔",1,2,0,1,1,0,1],["库拉索",1,2,0,1,1,1,7]],
-"F":[["荷兰",4,2,1,1,0,7,3],["瑞典",3,2,1,0,1,6,6],["日本",1,1,0,1,0,2,2],["突尼斯",0,1,0,0,1,1,5]],
-"G":[["比利时",1,1,0,1,0,1,1],["埃及",1,1,0,1,0,1,1],["伊朗",1,1,0,1,0,2,2],["新西兰",1,1,0,1,0,2,2]],
-"H":[["西班牙",1,1,0,1,0,0,0],["佛得角",1,1,0,1,0,0,0],["沙特",1,1,0,1,0,1,1],["乌拉圭",1,1,0,1,0,1,1]],
-"I":[["法国",3,1,1,0,0,3,1],["挪威",3,1,1,0,0,4,1],["塞内加尔",0,1,0,0,1,1,3],["伊拉克",0,1,0,0,1,1,4]],
-"J":[["阿根廷",3,1,1,0,0,3,0],["奥地利",3,1,1,0,0,3,1],["阿尔及利亚",0,1,0,0,1,0,3],["约旦",0,1,0,0,1,1,3]],
-"K":[["哥伦比亚",3,1,1,0,0,3,1],["葡萄牙",1,1,0,1,0,1,1],["刚果（金）",1,1,0,1,0,1,1],["乌兹别克斯坦",0,1,0,0,1,1,3]],
-"L":[["英格兰",3,1,1,0,0,4,2],["加纳",3,1,1,0,0,1,0],["克罗地亚",0,1,0,0,1,2,4],["巴拿马",0,1,0,0,1,0,1]]
+"A":["墨西哥","南非","韩国","捷克"],
+"B":["加拿大","波黑","卡塔尔","瑞士"],
+"C":["巴西","摩洛哥","海地","苏格兰"],
+"D":["美国","巴拉圭","澳大利亚","土耳其"],
+"E":["德国","库拉索","科特迪瓦","厄瓜多尔"],
+"F":["荷兰","日本","瑞典","突尼斯"],
+"G":["比利时","埃及","伊朗","新西兰"],
+"H":["西班牙","佛得角","沙特","乌拉圭"],
+"I":["法国","塞内加尔","伊拉克","挪威"],
+"J":["阿根廷","阿尔及利亚","奥地利","约旦"],
+"K":["葡萄牙","刚果（金）","乌兹别克斯坦","哥伦比亚"],
+"L":["英格兰","克罗地亚","加纳","巴拿马"]
 };
 
-let flag={
-"墨西哥":"🇲🇽","韩国":"🇰🇷","捷克":"🇨🇿","南非":"🇿🇦","加拿大":"🇨🇦","瑞士":"🇨🇭","波黑":"🇧🇦","卡塔尔":"🇶🇦",
-"巴西":"🇧🇷","摩洛哥":"🇲🇦","苏格兰":"🏴","海地":"🇭🇹","美国":"🇺🇸","澳大利亚":"🇦🇺","巴拉圭":"🇵🇾","土耳其":"🇹🇷",
-"德国":"🇩🇪","科特迪瓦":"🇨🇮","厄瓜多尔":"🇪🇨","库拉索":"🇨🇼","荷兰":"🇳🇱","瑞典":"🇸🇪","日本":"🇯🇵","突尼斯":"🇹🇳",
-"比利时":"🇧🇪","埃及":"🇪🇬","伊朗":"🇮🇷","新西兰":"🇳🇿","西班牙":"🇪🇸","佛得角":"🇨🇻","沙特":"🇸🇦","乌拉圭":"🇺🇾",
-"法国":"🇫🇷","挪威":"🇳🇴","塞内加尔":"🇸🇳","伊拉克":"🇮🇶","阿根廷":"🇦🇷","奥地利":"🇦🇹","阿尔及利亚":"🇩🇿","约旦":"🇯🇴",
-"葡萄牙":"🇵🇹","刚果（金）":"🇨🇩","乌兹别克斯坦":"🇺🇿","哥伦比亚":"🇨🇴","英格兰":"🏴","克罗地亚":"🇭🇷","加纳":"🇬🇭","巴拿马":"🇵🇦"
-};
+let flag={"墨西哥":"🇲🇽","南非":"🇿🇦","韩国":"🇰🇷","捷克":"🇨🇿","加拿大":"🇨🇦","波黑":"🇧🇦","卡塔尔":"🇶🇦","瑞士":"🇨🇭","巴西":"🇧🇷","摩洛哥":"🇲🇦","海地":"🇭🇹","苏格兰":"🏴","美国":"🇺🇸","巴拉圭":"🇵🇾","澳大利亚":"🇦🇺","土耳其":"🇹🇷","德国":"🇩🇪","库拉索":"🇨🇼","科特迪瓦":"🇨🇮","厄瓜多尔":"🇪🇨","荷兰":"🇳🇱","日本":"🇯🇵","瑞典":"🇸🇪","突尼斯":"🇹🇳","比利时":"🇧🇪","埃及":"🇪🇬","伊朗":"🇮🇷","新西兰":"🇳🇿","西班牙":"🇪🇸","佛得角":"🇨🇻","沙特":"🇸🇦","乌拉圭":"🇺🇾","法国":"🇫🇷","塞内加尔":"🇸🇳","伊拉克":"🇮🇶","挪威":"🇳🇴","阿根廷":"🇦🇷","阿尔及利亚":"🇩🇿","奥地利":"🇦🇹","约旦":"🇯🇴","葡萄牙":"🇵🇹","刚果（金）":"🇨🇩","乌兹别克斯坦":"🇺🇿","哥伦比亚":"🇨🇴","英格兰":"🏴","克罗地亚":"🇭🇷","加纳":"🇬🇭","巴拿马":"🇵🇦"};
 
 let power={
-"阿根廷":[27,1,92,88,90,"梅西 · 劳塔罗 · 恩佐 · 麦卡利斯特"],
-"巴西":[16,2,91,82,84,"维尼修斯 · 罗德里戈 · 马丁内利 · 卡塞米罗"],
-"法国":[14,3,90,86,83,"姆巴佩 · 登贝莱 · 格列兹曼 · 楚阿梅尼"],
-"德国":[13,4,87,82,86,"穆西亚拉 · 维尔茨 · 哈弗茨 · 基米希"],
-"英格兰":[12,5,88,85,84,"贝林厄姆 · 凯恩 · 福登 · 萨卡"],
-"西班牙":[11,6,84,83,92,"佩德里 · 罗德里 · 亚马尔 · 奥尔莫"],
-"葡萄牙":[10,7,86,81,82,"C罗 · B费 · 莱奥 · 贝尔纳多"],
-"荷兰":[9,8,82,87,80,"范戴克 · 德容 · 加克波 · 德利赫特"],
-"比利时":[8,9,84,76,80,"德布劳内 · 卢卡库 · 多库 · 奥纳纳"],
-"乌拉圭":[7,10,81,84,76,"努涅斯 · 巴尔韦德 · 阿劳霍 · 本坦库尔"],
-"日本":[5,15,78,75,80,"久保建英 · 三笘薰 · 远藤航"],
-"哥伦比亚":[5,13,79,75,76,"迪亚斯 · 哈梅斯"],
-"美国":[4,16,76,74,73,"普利西奇 · 雷纳"],
-"加拿大":[4,21,76,72,70,"戴维斯 · 戴维"],
-"瑞士":[4,18,74,76,72,"扎卡"],
-"奥地利":[4,18,76,77,74,"阿拉巴 · 萨比策"],
-"塞内加尔":[4,17,75,79,70,"马内 · 库利巴利"],
-"克罗地亚":[4,12,74,76,80,"莫德里奇"],
-"摩洛哥":[4,16,74,78,71,"阿什拉夫 · 齐耶赫"],
-"土耳其":[3,23,74,70,72,"恰尔汗奥卢 · 居莱尔"],
-"韩国":[3,22,72,70,73,"孙兴慜 · 李刚仁"],
-"瑞典":[3,24,71,72,68,"伊萨克"],
-"厄瓜多尔":[3,20,76,78,72,"凯塞多"],
-"埃及":[2,25,73,70,68,"萨拉赫"],
-"伊朗":[2,28,70,72,66,"塔雷米 · 阿兹蒙"],
-"加纳":[2,35,68,66,64,"库杜斯"]
+"阿根廷":[27,92,88,90],"巴西":[16,91,82,84],"法国":[14,90,86,83],"德国":[13,87,82,86],"英格兰":[12,88,85,84],"西班牙":[11,84,83,92],"葡萄牙":[10,86,81,82],"荷兰":[9,82,87,80],"比利时":[8,84,76,80],"乌拉圭":[7,81,84,76],
+"日本":[5,78,75,80],"哥伦比亚":[5,79,75,76],"美国":[4,76,74,73],"加拿大":[4,76,72,70],"瑞士":[4,74,76,72],"奥地利":[4,76,77,74],"塞内加尔":[4,75,79,70],"克罗地亚":[4,74,76,80],"摩洛哥":[4,74,78,71],
+"土耳其":[3,74,70,72],"韩国":[3,72,70,73],"瑞典":[3,71,72,68],"厄瓜多尔":[3,76,78,72],
+"埃及":[2,73,70,68],"伊朗":[2,70,72,66],"加纳":[2,68,66,64],"巴拉圭":[2,68,73,64],"澳大利亚":[2,68,71,65],"阿尔及利亚":[2,72,70,68],
+"墨西哥":[4,75,73,72],"挪威":[4,80,72,69],"捷克":[2,68,70,66],"沙特":[1,68,66,64],"突尼斯":[1,65,70,62],"新西兰":[1,61,63,58],"佛得角":[1,64,65,60],"伊拉克":[1,62,64,60],"约旦":[1,60,62,58],"乌兹别克斯坦":[1,64,66,62],"刚果（金）":[1,62,64,60],"巴拿马":[1,60,61,58],"南非":[1,63,64,62],"波黑":[1,65,62,64],"卡塔尔":[1,60,58,60],"海地":[1,58,58,55],"苏格兰":[2,66,70,67],"库拉索":[1,58,60,55],"科特迪瓦":[2,70,70,66]
 };
 
+let players={"阿根廷":"梅西 · 劳塔罗 · 恩佐","巴西":"维尼修斯 · 罗德里戈","法国":"姆巴佩 · 登贝莱","英格兰":"贝林厄姆 · 凯恩","日本":"久保建英 · 三笘薰","葡萄牙":"C罗 · B费","荷兰":"范戴克 · 德容"};
+
 let schedule=[
-["2026-06-21","00:00","小组赛 F组","突尼斯","日本"],
-["2026-06-21","12:00","小组赛 H组","西班牙","沙特"],
-["2026-06-21","15:00","小组赛 G组","比利时","伊朗"],
-["2026-06-21","18:00","小组赛 H组","乌拉圭","佛得角"],
-["2026-06-21","21:00","小组赛 G组","新西兰","埃及"],
-["2026-06-22","13:00","小组赛 J组","阿根廷","奥地利"],
-["2026-06-22","17:00","小组赛 I组","法国","伊拉克"],
-["2026-06-22","20:00","小组赛 I组","挪威","塞内加尔"],
-["2026-06-22","23:00","小组赛 J组","约旦","阿尔及利亚"],
-["2026-06-23","13:00","小组赛 K组","葡萄牙","乌兹别克斯坦"],
-["2026-06-23","16:00","小组赛 L组","英格兰","加纳"],
-["2026-06-23","19:00","小组赛 L组","巴拿马","克罗地亚"],
-["2026-06-23","22:00","小组赛 K组","哥伦比亚","刚果（金）"]
+["2026-06-21","00:00","F组","突尼斯","日本"],
+["2026-06-21","12:00","H组","西班牙","沙特"],
+["2026-06-21","15:00","G组","比利时","伊朗"],
+["2026-06-21","18:00","H组","乌拉圭","佛得角"],
+["2026-06-21","21:00","G组","新西兰","埃及"],
+["2026-06-22","13:00","J组","阿根廷","奥地利"],
+["2026-06-22","17:00","I组","法国","伊拉克"],
+["2026-06-22","20:00","I组","挪威","塞内加尔"],
+["2026-06-22","23:00","J组","约旦","阿尔及利亚"],
+["2026-06-23","13:00","K组","葡萄牙","乌兹别克斯坦"],
+["2026-06-23","16:00","L组","英格兰","加纳"],
+["2026-06-23","19:00","L组","巴拿马","克罗地亚"],
+["2026-06-23","22:00","K组","哥伦比亚","刚果（金）"]
 ];
 
-let mvp=[["姆巴佩","法国",31],["贝林厄姆","英格兰",21],["维尼修斯","巴西",17],["梅西","阿根廷",12],["穆西亚拉","德国",8]];
+function allTeams(){return Object.values(groups).flat()}
+function groupOf(n){for(let g in groups){if(groups[g].includes(n))return g}return "-"}
+function d(n){let x=power[n]||[1,62,62,62];return{prob:x[0],atk:x[1],def:x[2],ctl:x[3]}}
+function strength(n){let x=d(n);return x.atk*.45+x.def*.35+x.ctl*.2}
+function winProb(a,b){let diff=strength(a)-strength(b);return Math.max(10,Math.min(85,50+diff*1.3))}
+function pickWinner(a,b){let p=winProb(a,b);return Math.random()*100<p?a:b}
 
-function allTeams(){let arr=[];Object.values(groups).forEach(g=>g.forEach(t=>arr.push(t[0])));return arr}
-function groupOf(n){for(let g in groups){if(groups[g].some(x=>x[0]==n))return g}return "-"}
-function data(n){let p=power[n]||[1,99,62,62,62,"暂无核心球员数据"];return{prob:p[0],rank:p[1],atk:p[2],def:p[3],ctl:p[4],players:p[5]}}
-function strength(n){let x=data(n);return x.atk*.45+x.def*.35+x.ctl*.2}
-function match(h,a){
-let d=strength(h)-strength(a),hw=Math.max(12,Math.min(78,Math.round(38+d*1.1))),aw=Math.max(8,Math.min(70,Math.round(34-d*.9)));
-let dr=100-hw-aw;if(dr<8){dr=8;hw-=4;aw-=4}
-let hg=Math.max(0,Math.round((strength(h)-58)/18)),ag=Math.max(0,Math.round((strength(a)-58)/20));
-if(hw>60&&hg<=ag)hg=ag+1;if(aw>55&&ag<=hg)ag=hg+1;
-return{hw,dr,aw,score:hg+"-"+ag,conf:Math.max(hw,dr,aw),ho:(100/hw).toFixed(2),do:(100/dr).toFixed(2),ao:(100/aw).toFixed(2),top:[hg+"-"+ag,Math.max(0,hg-1)+"-"+ag,hg+"-"+Math.max(0,ag-1)]}
+function predictMatch(a,b){
+let p=winProb(a,b), aw=Math.round(p), bw=Math.round(100-p-24), dr=100-aw-bw;
+if(bw<8){bw=8;dr=100-aw-bw}
+let ag=Math.max(0,Math.round((strength(a)-58)/18));
+let bg=Math.max(0,Math.round((strength(b)-58)/20));
+if(aw>60&&ag<=bg)ag=bg+1;if(bw>55&&bg<=ag)bg=ag+1;
+return{aw,bw,dr,score:ag+"-"+bg}
 }
 
 function init(){
-document.getElementById("team").innerHTML=allTeams().map(n=>`<option value="${n}">${flag[n]||"⚪"} ${n}｜${groupOf(n)}组</option>`).join("");
+document.getElementById("team").innerHTML=allTeams().map(n=>`<option value="${n}">${flag[n]} ${n}｜${groupOf(n)}组</option>`).join("");
 let dates=[...new Set(schedule.map(x=>x[0]))];
-document.getElementById("matchDate").innerHTML=dates.map(d=>`<option value="${d}" ${d==todayDate?"selected":""}>${d}</option>`).join("");
-predict();renderMatches();renderGroups();renderRanking();renderSemis();renderMVP();renderBracket();renderChart();renderUpdate();
+document.getElementById("matchDate").innerHTML=dates.map(x=>`<option value="${x}" ${x==todayDate?"selected":""}>${x}</option>`).join("");
+predict();renderMatches();renderGroups();renderRanking();renderChart();renderUpdate();
 }
 
 function predict(){
-let n=document.getElementById("team").value,x=data(n);
-document.getElementById("result").innerHTML=`<div class="result"><div class="big">${flag[n]||"⚪"} ${n}</div><p>小组：${groupOf(n)}组</p><p>🏆 夺冠概率：<b>${x.prob}%</b></p><p>📊 模型排名：第 <b>${x.rank}</b> 名</p><div class="bar-bg"><div class="bar" style="width:${x.prob}%"></div></div><h3>球队指数</h3><div class="grid"><div class="stat">进攻：${x.atk}</div><div class="stat">防守：${x.def}</div><div class="stat">控球：${x.ctl}</div><div class="stat">综合：${Math.round(strength(n))}</div></div><h3>核心球员</h3><p>${x.players}</p><h3>AI分析</h3><p class="ai">${n}位于${groupOf(n)}组，当前模型综合强度为${Math.round(strength(n))}。${x.prob>=10?"具备冲击淘汰赛后段的实力。":"需要依靠防守、反击或定位球争取出线机会。"}</p></div>`;
+let n=document.getElementById("team").value,x=d(n);
+document.getElementById("result").innerHTML=`
+<div class="result">
+<div class="big">${flag[n]} ${n}</div>
+<p>小组：${groupOf(n)}组</p>
+<p>🏆 夺冠概率：${x.prob}%</p>
+<div class="bar-bg"><div class="bar" style="width:${x.prob}%"></div></div>
+<h3>球队指数</h3>
+<div class="grid"><div class="stat">进攻：${x.atk}</div><div class="stat">防守：${x.def}</div><div class="stat">控球：${x.ctl}</div><div class="stat">综合：${Math.round(strength(n))}</div></div>
+<h3>核心球员</h3><p>${players[n]||"暂无详细核心球员数据"}</p>
+<h3>AI分析</h3><p>${n}位于${groupOf(n)}组，模型综合强度为${Math.round(strength(n))}。</p>
+</div>`;
 }
 
 function renderMatches(){
-let d=document.getElementById("matchDate").value,html="";
-schedule.filter(x=>x[0]==d).forEach(m=>{
-let p=match(m[3],m[4]);
-html+=`<div class="result"><h3>${m[0]} ${m[1]}</h3><p class="small">🏆 ${m[2]}</p><div class="big">${flag[m[3]]||"⚪"} ${m[3]} vs ${flag[m[4]]||"⚪"} ${m[4]}</div><p>预测比分：</p><div class="score">${p.score}</div><p>AI信心指数：${p.conf}%</p><div class="bar-bg"><div class="bar" style="width:${p.conf}%"></div></div><p>${m[3]}胜：${p.hw}%｜赔率 ${p.ho}</p><div class="bar-bg"><div class="bar" style="width:${p.hw}%"></div></div><p>平局：${p.dr}%｜赔率 ${p.do}</p><div class="bar-bg"><div class="bar" style="width:${p.dr}%"></div></div><p>${m[4]}胜：${p.aw}%｜赔率 ${p.ao}</p><div class="bar-bg"><div class="bar" style="width:${p.aw}%"></div></div><h3>最可能比分 TOP3</h3><p>① ${p.top[0]}</p><p>② ${p.top[1]}</p><p>③ ${p.top[2]}</p></div>`;
+let date=document.getElementById("matchDate").value,html="";
+schedule.filter(x=>x[0]==date).forEach(m=>{
+let p=predictMatch(m[3],m[4]);
+html+=`<div class="result"><h3>${m[0]} ${m[1]}｜${m[2]}</h3><div class="big">${flag[m[3]]} ${m[3]} vs ${flag[m[4]]} ${m[4]}</div><p>预测比分：</p><div class="score">${p.score}</div><p>${m[3]}胜：${p.aw}%</p><div class="bar-bg"><div class="bar" style="width:${p.aw}%"></div></div><p>平局：${p.dr}%</p><div class="bar-bg"><div class="bar" style="width:${p.dr}%"></div></div><p>${m[4]}胜：${p.bw}%</p><div class="bar-bg"><div class="bar" style="width:${p.bw}%"></div></div></div>`;
 });
 document.getElementById("matches").innerHTML=html;
 }
 
+function simulateTournament(){
+let winners=[];
+Object.keys(groups).forEach(g=>{
+let arr=[...groups[g]].sort((a,b)=>strength(b)-strength(a));
+winners.push(arr[0],arr[1]);
+});
+while(winners.length>1){
+let next=[];
+for(let i=0;i<winners.length;i+=2){
+next.push(pickWinner(winners[i],winners[i+1]));
+}
+winners=next;
+}
+return winners[0];
+}
+
+function simulateOneCup(){
+let champ=simulateTournament();
+let teams=allTeams().filter(x=>x!==champ);
+let runner=teams.sort((a,b)=>strength(b)-strength(a))[0];
+let third=teams.filter(x=>x!==runner).sort((a,b)=>strength(b)-strength(a))[0];
+document.getElementById("oneSim").innerHTML=`<div class="result"><h3>单次模拟结果</h3><p>冠军：${flag[champ]} ${champ}</p><p>亚军：${flag[runner]} ${runner}</p><p>季军：${flag[third]} ${third}</p><p class="small">单次模拟代表一种可能路径，每次不同是正常的。</p></div>`;
+}
+
+function simulateManyCups(){
+let count={};allTeams().forEach(t=>count[t]=0);
+for(let i=0;i<1000;i++){count[simulateTournament()]++}
+let sorted=Object.entries(count).sort((a,b)=>b[1]-a[1]).slice(0,10);
+document.getElementById("manySim").innerHTML=`<div class="result"><h3>1000次模拟冠军统计</h3>${sorted.map((x,i)=>`<p>${i+1}. ${flag[x[0]]} ${x[0]}：${x[1]}次｜${(x[1]/10).toFixed(1)}%</p><div class="bar-bg"><div class="bar" style="width:${x[1]/10}%"></div></div>`).join("")}</div>`;
+}
+
 function renderGroups(){
-document.getElementById("groups").innerHTML=Object.keys(groups).map(g=>`<div class="result"><h3>${g}组</h3>${groups[g].map((r,i)=>`<p>${i+1}. ${flag[r[0]]||"⚪"} ${r[0]}｜${r[1]}分｜赛${r[2]}｜胜${r[3]} 平${r[4]} 负${r[5]}｜进${r[6]} 失${r[7]}｜净${r[6]-r[7]}</p>`).join("")}</div>`).join("");
+document.getElementById("groups").innerHTML=Object.keys(groups).map(g=>`<div class="result"><h3>${g}组</h3>${groups[g].map((n,i)=>`<p>${i+1}. ${flag[n]} ${n}｜模型强度 ${Math.round(strength(n))}</p>`).join("")}</div>`).join("");
 }
 
-function simulateCup(){
-let ranked=allTeams().sort((a,b)=>data(b).prob-data(a).prob);
-let weighted=[];ranked.slice(0,24).forEach(n=>{for(let i=0;i<Math.max(1,data(n).prob);i++)weighted.push(n)});
-let c=weighted[Math.floor(Math.random()*weighted.length)],r,t;
-do{r=ranked[Math.floor(Math.random()*12)]}while(r==c);
-do{t=ranked[Math.floor(Math.random()*16)]}while(t==c||t==r);
-document.getElementById("simulator").innerHTML=`<div class="result"><h3>🏆 模拟结果</h3><p>冠军：${flag[c]||"⚪"} ${c}</p><p>亚军：${flag[r]||"⚪"} ${r}</p><p>季军：${flag[t]||"⚪"} ${t}</p></div>`;
+function renderRanking(){
+let top=allTeams().sort((a,b)=>d(b).prob-d(a).prob).slice(0,20);
+document.getElementById("ranking").innerHTML=top.map((n,i)=>`<p>${i+1}. ${flag[n]} ${n}｜${d(n).prob}%</p><div class="bar-bg"><div class="bar" style="width:${d(n).prob}%"></div></div>`).join("");
 }
 
-function renderRanking(){let top=allTeams().sort((a,b)=>data(b).prob-data(a).prob).slice(0,20);document.getElementById("ranking").innerHTML=top.map((n,i)=>`<div class="rank-row"><div>${i+1}. ${flag[n]||"⚪"} ${n}｜${groupOf(n)}组 <span class="small">${data(n).prob}%</span></div><div class="bar-bg"><div class="bar" style="width:${data(n).prob}%"></div></div></div>`).join("")}
-function renderSemis(){let top=allTeams().sort((a,b)=>data(b).prob-data(a).prob).slice(0,4);document.getElementById("semis").innerHTML=top.map(n=>`<div class="stat"><div class="big">${flag[n]||"⚪"}</div><b>${n}</b><p class="small">${groupOf(n)}组｜四强热门</p></div>`).join("")}
-function renderMVP(){document.getElementById("mvp").innerHTML=mvp.map((p,i)=>`<div class="rank-row"><div>${i+1}. ${p[0]} · ${p[1]} <span class="small">${p[2]}%</span></div><div class="bar-bg"><div class="bar" style="width:${p[2]}%"></div></div></div>`).join("")}
-function renderBracket(){document.getElementById("bracket").innerHTML=`<div class="result"><p>预测半决赛：阿根廷 vs 巴西</p><p>预测半决赛：法国 vs 英格兰</p><p class="score">预测决赛：阿根廷 vs 法国</p></div>`}
-function renderChart(){if(!window.Chart)return;let top=allTeams().sort((a,b)=>data(b).prob-data(a).prob).slice(0,10);new Chart(document.getElementById("championChart"),{type:"doughnut",data:{labels:top,datasets:[{data:top.map(n=>data(n).prob)}]},options:{plugins:{legend:{labels:{color:"white"}}}}})}
-function generateReport(){let n=allTeams().sort((a,b)=>data(b).prob-data(a).prob)[0];document.getElementById("report").innerHTML=`<div class="result"><h3>AI总冠军报告</h3><p class="ai">当前模型最看好 ${flag[n]} ${n}，位于${groupOf(n)}组，冠军概率 ${data(n).prob}%。</p></div>`}
-function renderUpdate(){document.getElementById("update").innerHTML="最后更新："+new Date().toLocaleString()+"｜预测仅供分析，不构成投注建议。"}
+function renderChart(){
+let top=allTeams().sort((a,b)=>d(b).prob-d(a).prob).slice(0,10);
+new Chart(document.getElementById("chart"),{type:"doughnut",data:{labels:top,datasets:[{data:top.map(x=>d(x).prob)}]},options:{plugins:{legend:{labels:{color:"white"}}}}});
+}
+
+function report(){
+let best=allTeams().sort((a,b)=>d(b).prob-d(a).prob)[0];
+document.getElementById("report").innerHTML=`<div class="result"><h3>AI总冠军报告</h3><p>当前模型最看好 ${flag[best]} ${best}，冠军概率 ${d(best).prob}%。</p></div>`;
+}
+
+function renderUpdate(){document.getElementById("update").innerHTML="最后更新："+new Date().toLocaleString()+"｜模拟结果为概率模型，不是确定结果。"}
 
 init();
 </script>
