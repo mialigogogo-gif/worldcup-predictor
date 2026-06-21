@@ -131,7 +131,11 @@ return await res.json();
 async function loadRealMatches(){
 matches.innerHTML="<p class='muted'>正在读取实时比赛数据...</p>";
 try{
-let endpoint=mode.value==="live"?"/live":"/today";
+let endpoint =
+  mode.value === "live" ? "/live" :
+  mode.value === "tomorrow" ? "/tomorrow" :
+  mode.value === "after-tomorrow" ? "/after-tomorrow" :
+  "/today";
 const data=await getJSON(WORKER_URL+endpoint);
 const list=data.response||[];
 renderRealMatches(list);
