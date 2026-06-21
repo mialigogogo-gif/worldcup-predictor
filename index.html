@@ -1,12 +1,21 @@
+下面是 V8 完整代码。
+把 index.html 旧代码全部删除，整段复制进去提交即可。
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>世界杯预测中心 V7</title>
+<title>世界杯预测中心 V8</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0f172a;color:white;padding:20px}
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:#0f172a;
+  color:white;
+  padding:20px;
+}
 h1{font-size:34px;margin-top:28px}
 .card{background:#1e293b;padding:18px;border-radius:18px;margin-bottom:18px}
 select,button{width:100%;padding:14px;margin-top:12px;border-radius:12px;font-size:16px}
@@ -24,72 +33,54 @@ button{background:#2563eb;color:white;border:none;font-weight:bold}
 .footer{color:#94a3b8;font-size:13px;margin-top:30px}
 </style>
 </head>
-
 <body>
-
-<h1>⚽ 世界杯预测中心 V7</h1>
-
+<h1>⚽ 世界杯预测中心 V8</h1>
 <div class="card">
-<h2>冠军预测</h2>
-<select id="team">
-<option value="阿根廷">🇦🇷 阿根廷</option>
-<option value="法国">🇫🇷 法国</option>
-<option value="巴西">🇧🇷 巴西</option>
-<option value="德国">🇩🇪 德国</option>
-<option value="英格兰">🏴 英格兰</option>
-<option value="西班牙">🇪🇸 西班牙</option>
-<option value="葡萄牙">🇵🇹 葡萄牙</option>
-<option value="荷兰">🇳🇱 荷兰</option>
-<option value="比利时">🇧🇪 比利时</option>
-<option value="乌拉圭">🇺🇾 乌拉圭</option>
-</select>
-<button onclick="predict()">开始预测</button>
-<div id="result"></div>
+  <h2>冠军预测</h2>
+  <select id="team"></select>
+  <button onclick="predict()">开始预测</button>
+  <div id="result"></div>
 </div>
-
 <div class="card">
-<h2>🎲 世界杯模拟器</h2>
-<button onclick="simulateCup()">模拟一次世界杯</button>
-<div id="simulator"></div>
+  <h2>🎲 世界杯模拟器</h2>
+  <button onclick="simulateCup()">模拟一次世界杯</button>
+  <div id="simulator"></div>
 </div>
-
 <div class="card">
-<h2>今日比赛预测</h2>
-<div id="matches"></div>
+  <h2>今日比赛预测</h2>
+  <button onclick="generateTodayMatches()">刷新今日比赛</button>
+  <div id="matches"></div>
 </div>
-
 <div class="card">
-<h2>冠军概率图表</h2>
-<canvas id="championChart"></canvas>
+  <h2>冠军概率图表</h2>
+  <canvas id="championChart"></canvas>
 </div>
-
 <div class="card">
-<h2>预计四强</h2>
-<div class="grid" id="semis"></div>
+  <h2>预计四强</h2>
+  <div class="grid" id="semis"></div>
 </div>
-
 <div class="card">
-<h2>金球奖预测</h2>
-<div id="mvp"></div>
+  <h2>金球奖预测</h2>
+  <div id="mvp"></div>
 </div>
-
 <div class="card">
-<h2>小组积分榜</h2>
-<div id="groups"></div>
+  <h2>小组积分榜</h2>
+  <div id="groups"></div>
 </div>
-
 <div class="card">
-<h2>淘汰赛预测树</h2>
-<div id="bracket"></div>
+  <h2>淘汰赛预测树</h2>
+  <div id="bracket"></div>
 </div>
-
 <div class="card">
-<h2>夺冠概率排行榜</h2>
-<div id="ranking"></div>
+  <h2>夺冠概率排行榜</h2>
+  <div id="ranking"></div>
 </div>
-
+<div class="card">
+  <h2>AI总冠军报告</h2>
+  <button onclick="generateReport()">生成AI报告</button>
+  <div id="report"></div>
+</div>
 <div class="footer" id="update"></div>
-
 <script>
 let teams={
 "阿根廷":{flag:"🇦🇷",prob:27,rank:1,attack:92,defense:88,control:90,players:["梅西","劳塔罗","恩佐","麦卡利斯特"],analysis:"阿根廷稳定性强，大赛经验丰富，中前场创造力突出，是冠军最大热门。"},
@@ -103,15 +94,7 @@ let teams={
 "比利时":{flag:"🇧🇪",prob:8,rank:9,attack:84,defense:76,control:80,players:["德布劳内","卢卡库","多库","奥纳纳"],analysis:"比利时仍有高水平核心，但阵容年龄和防守稳定性限制上限。"},
 "乌拉圭":{flag:"🇺🇾",prob:7,rank:10,attack:81,defense:84,control:76,players:["努涅斯","巴尔韦德","阿劳霍","本坦库尔"],analysis:"乌拉圭身体强度高，韧性强，具备爆冷能力。"}
 };
-
-let matches=[
-{date:"今日",game:"西班牙 vs 沙特",home:"西班牙",away:"沙特",homeWin:57,draw:26,awayWin:17,score:"2-0"},
-{date:"今日",game:"比利时 vs 伊朗",home:"比利时",away:"伊朗",homeWin:53,draw:24,awayWin:23,score:"2-1"},
-{date:"今日",game:"乌拉圭 vs 佛得角",home:"乌拉圭",away:"佛得角",homeWin:62,draw:22,awayWin:16,score:"2-0"},
-{date:"明日",game:"阿根廷 vs 奥地利",home:"阿根廷",away:"奥地利",homeWin:65,draw:17,awayWin:18,score:"2-1"},
-{date:"明日",game:"法国 vs 伊拉克",home:"法国",away:"伊拉克",homeWin:94,draw:4,awayWin:2,score:"4-0"}
-];
-
+let otherTeams=["沙特","伊朗","佛得角","奥地利","伊拉克","日本","美国","墨西哥","韩国","摩洛哥"];
 let mvp=[
 {name:"姆巴佩",team:"法国",prob:31},
 {name:"贝林厄姆",team:"英格兰",prob:21},
@@ -119,14 +102,19 @@ let mvp=[
 {name:"梅西",team:"阿根廷",prob:12},
 {name:"穆西亚拉",team:"德国",prob:8}
 ];
-
 let groups={
 "A":[["阿根廷",6],["荷兰",4],["伊朗",1],["沙特",0]],
 "B":[["法国",6],["乌拉圭",4],["日本",3],["伊拉克",0]],
 "C":[["巴西",6],["德国",4],["摩洛哥",2],["韩国",1]],
 "D":[["英格兰",6],["西班牙",4],["比利时",3],["美国",1]]
 };
-
+function initSelect(){
+let html="";
+Object.keys(teams).forEach(name=>{
+html+=`<option value="${name}">${teams[name].flag} ${name}</option>`;
+});
+document.getElementById("team").innerHTML=html;
+}
 function predict(){
 let name=document.getElementById("team").value;
 let t=teams[name];
@@ -149,26 +137,74 @@ document.getElementById("result").innerHTML=`
 <p class="ai">${t.analysis}</p>
 </div>`;
 }
-
-function renderMatches(){
+function strength(name){
+if(teams[name]){
+let t=teams[name];
+return t.attack*0.45+t.defense*0.35+t.control*0.2;
+}
+return 65;
+}
+function predictMatch(home,away){
+let h=strength(home);
+let a=strength(away);
+let diff=h-a;
+let homeWin=Math.round(40+diff*1.2);
+let awayWin=Math.round(35-diff*0.9);
+let draw=100-homeWin-awayWin;
+homeWin=Math.max(15,Math.min(75,homeWin));
+awayWin=Math.max(10,Math.min(65,awayWin));
+draw=100-homeWin-awayWin;
+let hg=Math.max(0,Math.round((h-60)/18+Math.random()*1.2));
+let ag=Math.max(0,Math.round((a-60)/20+Math.random()*1.0));
+return {homeWin,draw,awayWin,score:hg+"-"+ag};
+}
+function generateTodayMatches(){
+let names=Object.keys(teams);
+let pool=names.concat(otherTeams);
 let html="";
-matches.forEach(m=>{
+let used=[];
+for(let i=0;i<5;i++){
+let home,away;
+do{home=pool[Math.floor(Math.random()*pool.length)];}while(used.includes(home));
+used.push(home);
+do{away=pool[Math.floor(Math.random()*pool.length)];}while(used.includes(away)||away===home);
+used.push(away);
+let p=predictMatch(home,away);
 html+=`
 <div class="result">
-<h3>${m.date} · ${m.game}</h3>
+<h3>今日 · ${home} vs ${away}</h3>
 <p>预测比分：</p>
-<div class="score">${m.score}</div>
-<p>${m.home}胜：${m.homeWin}%</p>
-<div class="bar-bg"><div class="bar" style="width:${m.homeWin}%"></div></div>
-<p>平局：${m.draw}%</p>
-<div class="bar-bg"><div class="bar" style="width:${m.draw}%"></div></div>
-<p>${m.away}胜：${m.awayWin}%</p>
-<div class="bar-bg"><div class="bar" style="width:${m.awayWin}%"></div></div>
+<div class="score">${p.score}</div>
+<p>${home}胜：${p.homeWin}%</p>
+<div class="bar-bg"><div class="bar" style="width:${p.homeWin}%"></div></div>
+<p>平局：${p.draw}%</p>
+<div class="bar-bg"><div class="bar" style="width:${p.draw}%"></div></div>
+<p>${away}胜：${p.awayWin}%</p>
+<div class="bar-bg"><div class="bar" style="width:${p.awayWin}%"></div></div>
 </div>`;
-});
+}
 document.getElementById("matches").innerHTML=html;
 }
-
+function simulateCup(){
+let ranking=Object.entries(teams).sort((a,b)=>b[1].prob-a[1].prob);
+let weighted=[];
+ranking.forEach(item=>{
+for(let i=0;i<item[1].prob;i++){weighted.push(item);}
+});
+let champion=weighted[Math.floor(Math.random()*weighted.length)];
+let runner;
+do{runner=ranking[Math.floor(Math.random()*5)];}while(runner[0]===champion[0]);
+let third;
+do{third=ranking[Math.floor(Math.random()*7)];}while(third[0]===champion[0]||third[0]===runner[0]);
+document.getElementById("simulator").innerHTML=`
+<div class="result">
+<h3>🏆 模拟结果</h3>
+<p>冠军：${champion[1].flag} ${champion[0]}</p>
+<p>亚军：${runner[1].flag} ${runner[0]}</p>
+<p>季军：${third[1].flag} ${third[0]}</p>
+<p class="small">本模拟根据冠军概率加权随机生成。</p>
+</div>`;
+}
 function renderRanking(){
 let ranking=Object.entries(teams).sort((a,b)=>b[1].prob-a[1].prob);
 let html="";
@@ -182,7 +218,6 @@ html+=`
 });
 document.getElementById("ranking").innerHTML=html;
 }
-
 function renderSemis(){
 let top4=Object.entries(teams).sort((a,b)=>b[1].prob-a[1].prob).slice(0,4);
 let html="";
@@ -192,7 +227,6 @@ html+=`<div class="stat"><div class="big">${t.flag}</div><b>${name}</b><p class=
 });
 document.getElementById("semis").innerHTML=html;
 }
-
 function renderMVP(){
 let html="";
 mvp.forEach((p,i)=>{
@@ -204,19 +238,15 @@ html+=`
 });
 document.getElementById("mvp").innerHTML=html;
 }
-
 function renderGroups(){
 let html="";
 Object.keys(groups).forEach(g=>{
 html+=`<div class="result"><h3>${g}组</h3>`;
-groups[g].forEach((r,i)=>{
-html+=`<p>${i+1}. ${r[0]} · ${r[1]}分</p>`;
-});
+groups[g].forEach((r,i)=>{html+=`<p>${i+1}. ${r[0]} · ${r[1]}分</p>`;});
 html+=`</div>`;
 });
 document.getElementById("groups").innerHTML=html;
 }
-
 function renderBracket(){
 document.getElementById("bracket").innerHTML=`
 <div class="result">
@@ -229,21 +259,6 @@ document.getElementById("bracket").innerHTML=`
 <p class="score">预测决赛：阿根廷 vs 法国</p>
 </div>`;
 }
-
-function simulateCup(){
-let ranking=Object.entries(teams).sort((a,b)=>b[1].prob-a[1].prob);
-let champion=ranking[Math.floor(Math.random()*3)];
-let runner=ranking[Math.floor(Math.random()*5)+1];
-let third=ranking[Math.floor(Math.random()*6)+2];
-document.getElementById("simulator").innerHTML=`
-<div class="result">
-<h3>模拟结果</h3>
-<p>冠军：${champion[1].flag} ${champion[0]}</p>
-<p>亚军：${runner[1].flag} ${runner[0]}</p>
-<p>季军：${third[1].flag} ${third[0]}</p>
-</div>`;
-}
-
 function renderChart(){
 let labels=Object.keys(teams);
 let values=labels.map(t=>teams[t].prob);
@@ -253,13 +268,26 @@ data:{labels:labels,datasets:[{data:values}]},
 options:{plugins:{legend:{labels:{color:"white"}}}}
 });
 }
-
+function generateReport(){
+let top=Object.entries(teams).sort((a,b)=>b[1].prob-a[1].prob)[0];
+document.getElementById("report").innerHTML=`
+<div class="result">
+<h3>AI总冠军报告</h3>
+<p class="ai">
+当前模型最看好 ${top[1].flag} ${top[0]}。
+该队冠军概率为 ${top[1].prob}%，进攻指数 ${top[1].attack}，
+防守指数 ${top[1].defense}，控球指数 ${top[1].control}。
+综合来看，${top[0]} 具备最强的夺冠稳定性。
+</p>
+</div>`;
+}
 function renderUpdateTime(){
 document.getElementById("update").innerHTML=
 "最后更新："+new Date().toLocaleString()+"｜预测仅供分析，不构成投注建议。";
 }
-
-renderMatches();
+initSelect();
+predict();
+generateTodayMatches();
 renderSemis();
 renderMVP();
 renderGroups();
@@ -268,6 +296,5 @@ renderRanking();
 renderChart();
 renderUpdateTime();
 </script>
-
 </body>
 </html>
